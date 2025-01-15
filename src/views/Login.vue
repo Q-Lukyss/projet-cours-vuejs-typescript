@@ -17,10 +17,10 @@
 </template>
 
 <script setup lang="ts">
-import { defineComponent, ref } from 'vue';
+import { ref } from 'vue';
 import { db } from '@/services/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
-import { User } from '@/types/users';
+import { type User } from '@/types/users';
 import router from "@/router";
 
 const email = ref('');
