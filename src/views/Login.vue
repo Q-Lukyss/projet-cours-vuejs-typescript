@@ -18,34 +18,57 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { db } from '@/services/firebase';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db, auth } from '@/services/firebase';
+import {doc, getDoc } from 'firebase/firestore';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { type User } from '@/types/users';
 import router from "@/router";
+import {useAuthStore} from "@/stores/auth.ts";
 
 const email = ref('');
 const password = ref('');
 const errorMessage = ref('');
+const authStore = useAuthStore();
 
 const handleLogin = async () => {
-    try {
-    // Rechercher l'utilisateur correspondant à l'email et au mot de passe
-    const usersCollection = collection(db, 'Users');
-    const q = query(usersCollection, where('email', '==', email.value), where('password', '==', password.value));
-    const querySnapshot = await getDocs(q);
+  try {
+    // Authentification avec Firebase Auth
+    const userCredential = await signInWithEmailAndPassword(auth, email.value, password.value);
+    const user = userCredential.user;
+    console.log('Utilisateur connecté :', user);
 
-    if (!querySnapshot.empty) {
-        const user: User = querySnapshot.docs[0].data() as User;
-        console.log('Utilisateur connecté :', user);
-        // Redirigez l'utilisateur ou effectuez une autre action ici
-        router.push("/dashboard")
+    // Récupérer le document de l'utilisateur dans Firestore
+    // On suppose ici que chaque document utilisateur est identifié par l'uid de l'utilisateur
+    const userDocRef = doc(db, 'Users', user.uid);
+    const userDocSnap = await getDoc(userDocRef);
+
+    if (userDocSnap.exists()) {
+      const userData = userDocSnap.data();
+      const statut = userData.statut; // Assurez-vous que ce champ existe dans votre document
+
+      authStore.setUser({
+        uid: user.uid,
+        email: user.email!,
+        statut: userData.statut // Assure-toi que 'statut' existe dans ton document
+      });
+
+      // Redirection en fonction du statut
+      if (statut === 0) {
+        await router.push("/dashboard");
+      } else if (statut === 5) {
+        await router.push("/dashboard-intervenant");
+      } else if (statut === 10) {
+        await router.push("/dashboard-administratif");
+      } else {
+        errorMessage.value = 'Statut utilisateur inconnu.';
+      }
     } else {
-        errorMessage.value = 'Email ou mot de passe incorrect.';
+      errorMessage.value = "Aucun profil trouvé pour cet utilisateur.";
     }
-    } catch (error: any) {
-        errorMessage.value = 'Erreur lors de la connexion. Veuillez réessayer.';
-        console.error(error);
-    }
+  } catch (error: any) {
+    errorMessage.value = 'Email ou mot de passe incorrect.';
+    console.error(error);
+  }
 };
 </script>
 

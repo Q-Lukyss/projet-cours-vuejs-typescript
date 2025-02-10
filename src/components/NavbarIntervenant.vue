@@ -1,51 +1,44 @@
 <template>
-  <!-- Navbar -->
-  <nav class="bg-darkblue">
+  <!-- NavbarEtudiant -->
+  <nav class="bg-darkblue text-lightbeige">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <div class="flex h-16 items-center justify-between">
         <!-- Logo -->
         <div class="flex items-center">
           <div class="flex-shrink-0">
-            <!--            <img class="h-auto w-12" src="@/assets/GROUPE%20DUGUIT/SYMBOLE_B_GROUPE DUGUIT.png" alt="Your Company" />-->
+            <img class="h-auto w-12" src="@/assets/img/school-svgrepo-com.svg" alt="Your Company" />
           </div>
         </div>
 
         <!-- Menu de navigation (desktop) -->
         <div class="hidden lg:flex space-x-4">
           <router-link
-              :class="isActive('/dashboard') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
-              to="/dashboard"
+              :class="isActive('/dashboard-intervenant') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
+              to="/dashboard-intervenant"
               class="rounded-md px-3 py-2 text-m font-medium"
           >
             Tableau de Bord
           </router-link>
           <router-link
-              :class="isActive('/note') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
-              to="/note"
+              :class="isActive('/formation-intervenant') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
+              to="/formation-intervenant"
               class="rounded-md px-3 py-2 text-m font-medium"
           >
-            Notes
+            Mes Classes
           </router-link>
           <router-link
-              :class="isActive('/administratif') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
-              to="/administratif"
-              class="rounded-md px-3 py-2 text-m font-medium"
-          >
-            Documents Administratifs
-          </router-link>
-          <router-link
-              :class="isActive('/presence') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
-              to="/presence"
-              class="rounded-md px-3 py-2 text-m font-medium"
-          >
-            Absences
-          </router-link>
-          <router-link
-              :class="isActive('/support-cours') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
-              to="/support-cours"
+              :class="isActive('/support-cours-intervenant') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
+              to="/support-cours-intervenant"
               class="rounded-md px-3 py-2 text-m font-medium"
           >
             Support de Cours
+          </router-link>
+          <router-link
+              :class="isActive('/note-intervenant') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
+              to="/note-intervenant"
+              class="rounded-md px-3 py-2 text-m font-medium"
+          >
+            Notes
           </router-link>
         </div>
 
@@ -107,32 +100,25 @@
           Tableau de Bord
         </router-link>
         <router-link
-            :class="isActive('/note') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
-            to="/note"
-            class="block rounded-md px-3 py-2 text-base font-medium"
+            :class="isActive('/formation-intervenant') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
+            to="/formation-intervenant"
+            class="rounded-md px-3 py-2 text-m font-medium"
+        >
+          Mes Classes
+        </router-link>
+        <router-link
+            :class="isActive('/support-cours-intervenant') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
+            to="/support-cours-intervenant"
+            class="rounded-md px-3 py-2 text-m font-medium"
+        >
+          Support de Cours
+        </router-link>
+        <router-link
+            :class="isActive('/note-intervenant') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
+            to="/note-intervenant"
+            class="rounded-md px-3 py-2 text-m font-medium"
         >
           Notes
-        </router-link>
-        <router-link
-            :class="isActive('/administratif') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
-            to="/administratif"
-            class="block rounded-md px-3 py-2 text-base font-medium"
-        >
-          Documents Administratifs
-        </router-link>
-        <router-link
-            :class="isActive('/presence') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
-            to="/presence"
-            class="block rounded-md px-3 py-2 text-base font-medium"
-        >
-          Absences
-        </router-link>
-        <router-link
-            :class="isActive('/support-cours') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
-            to="/support-cours"
-            class="block rounded-md px-3 py-2 text-base font-medium"
-        >
-          Support de COurs
         </router-link>
         <router-link
             :class="isActive('/logout') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
