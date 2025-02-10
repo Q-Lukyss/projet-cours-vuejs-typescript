@@ -1,18 +1,25 @@
 <template>
-  <div class="login-container">
-    <h1>Connexion</h1>
-    <form @submit.prevent="handleLogin">
-      <div>
-        <label for="email">Email :</label>
-        <input v-model="email" type="email" id="email" required />
-      </div>
-      <div>
-        <label for="password">Mot de passe :</label>
-        <input v-model="password" type="password" id="password" required />
-      </div>
-      <button type="submit">Se connecter</button>
-      <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
-    </form>
+  <div class="flex min-h-screen items-center justify-center bg-darkblue">
+    <div class="w-full max-w-md bg-beige p-8 rounded-2xl shadow-lg">
+      <h1 class="text-2xl font-bold text-center text-darkblue">Connexion</h1>
+      <form @submit.prevent="handleLogin" class="mt-6">
+        <div class="mb-4">
+          <label for="email" class="block text-sm font-medium text-darkblue">Email :</label>
+          <input v-model="email" type="email" id="email" required
+                 class="w-full p-3 mt-1 rounded-lg border border-lightviolet focus:ring-2 focus:ring-violet focus:outline-none" />
+        </div>
+        <div class="mb-4">
+          <label for="password" class="block text-sm font-medium text-darkblue">Mot de passe :</label>
+          <input v-model="password" type="password" id="password" required
+                 class="w-full p-3 mt-1 rounded-lg border border-lightviolet focus:ring-2 focus:ring-violet focus:outline-none" />
+        </div>
+        <button type="submit"
+                class="w-full p-3 mt-4 bg-violet text-lightbeige hover:text-darkblue font-bold rounded-lg hover:bg-lightviolet transition">
+          Se connecter
+        </button>
+        <p v-if="errorMessage" class="mt-3 text-red-500 text-center">{{ errorMessage }}</p>
+      </form>
+    </div>
   </div>
 </template>
 
@@ -73,39 +80,5 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
-.login-container {
-max-width: 400px;
-margin: 0 auto;
-padding: 1rem;
-border: 1px solid #ccc;
-border-radius: 5px;
-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-label {
-display: block;
-margin-bottom: 0.5rem;
-}
-input {
-width: 100%;
-padding: 0.5rem;
-margin-bottom: 1rem;
-border: 1px solid #ccc;
-border-radius: 5px;
-}
-button {
-width: 100%;
-padding: 0.5rem;
-background-color: #007bff;
-color: white;
-border: none;
-border-radius: 5px;
-cursor: pointer;
-}
-button:hover {
-background-color: #0056b3;
-}
-.error {
-color: red;
-margin-top: 0.5rem;
-}
+
 </style>
