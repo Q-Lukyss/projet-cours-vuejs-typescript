@@ -1,6 +1,6 @@
 <template>
   <!-- NavbarEtudiant -->
-  <nav class="bg-darkblue text-lightbeige">
+  <nav class="bg-violet text-lightbeige">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <div class="flex h-16 items-center justify-between">
         <!-- Logo -->
@@ -13,35 +13,35 @@
         <!-- Menu de navigation (desktop) -->
         <div class="hidden lg:flex space-x-4">
           <router-link
-              :class="isActive('/dashboard-administratif') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
+              :class="isActive('/dashboard-administratif') ? 'bg-darkblue text-white' : 'text-gray-300 hover:bg-darkblue hover:text-white'"
               to="/dashboard-administratif"
               class="rounded-md px-3 py-2 text-m font-medium"
           >
             Tableau de Bord
           </router-link>
           <router-link
-              :class="isActive('/absences') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
+              :class="isActive('/absences') ? 'bg-darkblue text-white' : 'text-gray-300 hover:bg-darkblue hover:text-white'"
               to="/absences"
               class="rounded-md px-3 py-2 text-m font-medium"
           >
             Absences à Justifier
           </router-link>
           <router-link
-              :class="isActive('/news') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
+              :class="isActive('/news') ? 'bg-darkblue text-white' : 'text-gray-300 hover:bg-darkblue hover:text-white'"
               to="/news"
               class="rounded-md px-3 py-2 text-m font-medium"
           >
             News
           </router-link>
           <router-link
-              :class="isActive('/utilisateurs') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
+              :class="isActive('/utilisateurs') ? 'bg-darkblue text-white' : 'text-gray-300 hover:bg-darkblue hover:text-white'"
               to="/utilisateurs"
               class="rounded-md px-3 py-2 text-m font-medium"
           >
             Utilisateurs
           </router-link>
           <router-link
-              :class="isActive('/formation') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
+              :class="isActive('/formation') ? 'bg-darkblue text-white' : 'text-gray-300 hover:bg-darkblue hover:text-white'"
               to="/formation"
               class="rounded-md px-3 py-2 text-m font-medium"
           >
@@ -52,7 +52,7 @@
         <!-- Bouton Déconnexion (toujours visible) -->
         <div class="hidden lg:flex items-center">
           <router-link
-              :class="isActive('/logout') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
+              :class="isActive('/logout') ? 'bg-darkblue text-white' : 'text-gray-300 hover:bg-darkblue hover:text-white'"
               to="/logout"
               class="rounded-md px-3 py-2 text-m font-medium"
           >
@@ -63,7 +63,7 @@
         <!-- Bouton Burger (mobile uniquement) -->
         <button
             @click="isOpen = !isOpen"
-            class="lg:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+            class="lg:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-darkblue focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
             aria-controls="mobile-menu"
             aria-expanded="false"
         >
@@ -100,42 +100,42 @@
     <div :class="isOpen ? 'block' : 'hidden'" class="lg:hidden bg-gray-800" id="mobile-menu">
       <div class="space-y-1 px-2 pt-2 pb-3">
         <router-link
-            :class="isActive('/dashboard-administratif') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
+            :class="isActive('/dashboard-administratif') ? 'bg-darkblue text-white' : 'text-gray-300 hover:bg-darkblue hover:text-white'"
             to="/dashboard-administratif"
             class="block rounded-md px-3 py-2 text-base font-medium"
         >
           Tableau de Bord
         </router-link>
         <router-link
-            :class="isActive('/absences') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
+            :class="isActive('/absences') ? 'bg-darkblue text-white' : 'text-gray-300 hover:bg-darkblue hover:text-white'"
             to="/absences"
             class="rounded-md px-3 py-2 text-m font-medium"
         >
           Absences à Justifier
         </router-link>
         <router-link
-            :class="isActive('/news') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
+            :class="isActive('/news') ? 'bg-darkblue text-white' : 'text-gray-300 hover:bg-darkblue hover:text-white'"
             to="/news"
             class="rounded-md px-3 py-2 text-m font-medium"
         >
           News
         </router-link>
         <router-link
-            :class="isActive('/utilisateurs') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
+            :class="isActive('/utilisateurs') ? 'bg-darkblue text-white' : 'text-gray-300 hover:bg-darkblue hover:text-white'"
             to="/utilisateurs"
             class="rounded-md px-3 py-2 text-m font-medium"
         >
           Utilisateurs
         </router-link>
         <router-link
-            :class="isActive('/formation') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
+            :class="isActive('/formation') ? 'bg-darkblue text-white' : 'text-gray-300 hover:bg-darkblue hover:text-white'"
             to="/formation"
             class="rounded-md px-3 py-2 text-m font-medium"
         >
           Formations
         </router-link>
         <router-link
-            :class="isActive('/logout') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
+            :class="isActive('/logout') ? 'bg-darkblue text-white' : 'text-gray-300 hover:bg-darkblue hover:text-white'"
             to="/logout"
             class="block rounded-md px-3 py-2 text-base font-medium"
         >
