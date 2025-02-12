@@ -9,29 +9,12 @@ const routes: Array<RouteRecordRaw> = [
     name: 'Login',
     component: () => import('../views/Login.vue'),
   },
+    // Etudiant
   {
     path: '/dashboard',
     name: 'DashboardEtudiant',
     component: () => import('../views/Etudiant/HomeEtudiant.vue'),
     meta: { allowedStatuses: [0] }
-  },
-  {
-    path: '/calendrier-etudiant',
-    name: 'CalendrierEtudiant',
-    component: () => import('../views/Etudiant/Calendrier.vue'),
-    meta: { allowedStatuses: [0] }
-  },
-  {
-    path: '/dashboard-intervenant',
-    name: 'DashboardIntervenant',
-    component: () => import('../views/Intervenant/HomeIntervenant.vue'),
-    meta: { allowedStatuses: [5] }
-  },
-  {
-    path: '/dashboard-administratif',
-    name: 'DashboardAdministratif',
-    component: () => import('../views/Administratif/HomeAdministratif.vue'),
-    meta: { allowedStatuses: [10] }
   },
   {
     path: '/note',
@@ -57,6 +40,69 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('../views/Etudiant/SupportCours.vue'),
     meta: { allowedStatuses: [0] }
   },
+  {
+    path: '/calendrier-etudiant',
+    name: 'CalendrierEtudiant',
+    component: () => import('../views/Etudiant/Calendrier.vue'),
+    meta: { allowedStatuses: [0] }
+  },
+  // Intervenant
+  {
+    path: '/dashboard-intervenant',
+    name: 'DashboardIntervenant',
+    component: () => import('../views/Intervenant/HomeIntervenant.vue'),
+    meta: { allowedStatuses: [5] }
+  },
+  {
+    path: '/formation-intervenant',
+    name: 'FormationIntervenant',
+    component: () => import('../views/Intervenant/Formation.vue'),
+    meta: { allowedStatuses: [5] }
+  },
+  {
+    path: '/support-cours-intervenant',
+    name: 'SupportIntervenant',
+    component: () => import('../views/Intervenant/SupportCours.vue'),
+    meta: { allowedStatuses: [5] }
+  },
+  {
+    path: '/note-intervenant',
+    name: 'NoteIntervenant',
+    component: () => import('../views/Intervenant/Note.vue'),
+    meta: { allowedStatuses: [5] }
+  },
+  // Administratif
+  {
+    path: '/dashboard-administratif',
+    name: 'DashboardAdministratif',
+    component: () => import('../views/Administratif/HomeAdministratif.vue'),
+    meta: { allowedStatuses: [10] }
+  },
+  {
+    path: '/absences',
+    name: 'AbsenceAdministratif',
+    component: () => import('../views/Administratif/Absence.vue'),
+    meta: { allowedStatuses: [10] }
+  },
+  {
+    path: '/news',
+    name: 'NewsAdministratif',
+    component: () => import('../views/Administratif/News.vue'),
+    meta: { allowedStatuses: [10] }
+  },
+  {
+    path: '/utilisateurs',
+    name: 'UtilisateursAdministratif',
+    component: () => import('../views/Administratif/Utilisateur.vue'),
+    meta: { allowedStatuses: [10] }
+  },
+  {
+    path: '/formation',
+    name: 'FormationAdministratif',
+    component: () => import('../views/Administratif/Formation.vue'),
+    meta: { allowedStatuses: [10] }
+  },
+
 ]
 
 const router = createRouter({
