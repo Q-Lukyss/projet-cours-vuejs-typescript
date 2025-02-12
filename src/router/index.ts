@@ -1,7 +1,7 @@
-import {createRouter, createWebHistory} from 'vue-router'
-import type {RouteRecordRaw} from 'vue-router'
-import {useAuthStore} from "@/stores/auth.ts";
-
+import { createRouter, createWebHistory } from 'vue-router'
+import type { RouteRecordRaw } from 'vue-router'
+import { useAuthStore } from "@/stores/auth";
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -13,6 +13,12 @@ const routes: Array<RouteRecordRaw> = [
     path: '/dashboard',
     name: 'DashboardEtudiant',
     component: () => import('../views/Etudiant/HomeEtudiant.vue'),
+    meta: { allowedStatuses: [0] }
+  },
+  {
+    path: '/calendrier-etudiant',
+    name: 'CalendrierEtudiant',
+    component: () => import('../views/Etudiant/Calendrier.vue'),
     meta: { allowedStatuses: [0] }
   },
   {
@@ -58,17 +64,30 @@ const router = createRouter({
   routes
 });
 
-router.beforeEach((to, from, next) => {
+// Fonction qui attend que l'état d'authentification soit connu
+function waitForAuth() {
+  return new Promise((resolve) => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      unsubscribe();
+      resolve(user);
+    });
+  });
+}
+
+router.beforeEach(async (to, from, next) => {
+  // Attendre que l'état d'authentification soit déterminé
+  await waitForAuth();
+
   const authStore = useAuthStore();
   const allowedStatuses = to.meta.allowedStatuses as number[] | undefined;
 
-  // Si la route a une restriction de statut
   if (allowedStatuses) {
-    // Vérifier que l'utilisateur est connecté et a un statut valide
+    // Si l'utilisateur est connecté et que son statut figure dans les statuts autorisés, on autorise l'accès
     if (authStore.user && allowedStatuses.includes(authStore.user.statut)) {
       next();
     } else {
-      // Rediriger vers la page de connexion ou une page d'erreur
+      // Sinon, redirection vers la page de login
       next({ name: 'Login' });
     }
   } else {
@@ -76,4 +95,4 @@ router.beforeEach((to, from, next) => {
   }
 });
 
-export default router
+export default router;

@@ -1,5 +1,6 @@
 // src/store/auth.ts
 import { defineStore } from 'pinia';
+import {getAuth, signOut} from "firebase/auth";
 
 export const useAuthStore = defineStore('auth', {
     state: () => ({
@@ -11,6 +12,15 @@ export const useAuthStore = defineStore('auth', {
         },
         clearUser() {
             this.user = null;
+        },
+        async logout() {
+            const auth = getAuth();
+            try {
+                await signOut(auth);
+                this.clearUser();
+            } catch (error) {
+                console.error("Erreur lors du logout :", error);
+            }
         }
     }
 });
