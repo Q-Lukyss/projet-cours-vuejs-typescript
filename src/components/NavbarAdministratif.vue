@@ -51,13 +51,12 @@
 
         <!-- Bouton Déconnexion (toujours visible) -->
         <div class="hidden lg:flex items-center">
-          <router-link
-              :class="isActive('/logout') ? 'bg-darkblue text-white' : 'text-gray-300 hover:bg-darkblue hover:text-white'"
-              to="/logout"
-              class="rounded-md px-3 py-2 text-m font-medium"
+          <button
+              @click="handleLogout"
+              class="rounded-md px-3 py-2 text-m font-medium text-gray-300 hover:bg-darkblue hover:text-white"
           >
             Déconnexion
-          </router-link>
+          </button>
         </div>
 
         <!-- Bouton Burger (mobile uniquement) -->
@@ -134,13 +133,12 @@
         >
           Formations
         </router-link>
-        <router-link
-            :class="isActive('/logout') ? 'bg-darkblue text-white' : 'text-gray-300 hover:bg-darkblue hover:text-white'"
-            to="/logout"
-            class="block rounded-md px-3 py-2 text-base font-medium"
+        <button
+            @click="handleLogout"
+            class="rounded-md px-3 py-2 text-m font-medium text-gray-300 hover:bg-darkblue hover:text-white"
         >
           Déconnexion
-        </router-link>
+        </button>
       </div>
     </div>
   </nav>
@@ -149,11 +147,14 @@
 
 
 <script setup lang="ts">
-import {useRoute} from 'vue-router';
+import {useRoute, useRouter} from 'vue-router';
 import {computed, onMounted, ref, watch} from 'vue';
+import {useAuthStore} from "@/stores/auth.ts";
 
 const isOpen = ref(false); // Variable pour gérer l'état du menu mobile
 const route = useRoute();
+const router = useRouter();
+const authStore = useAuthStore();
 
 
 // Fonction qui vérifie si la route est active
@@ -161,6 +162,11 @@ const isActive = (path : string) => {
   return computed(() => route.path === path).value;
 };
 
+function handleLogout() {
+  authStore.logout();
+  // Vous pouvez rediriger vers la page de login si besoin :
+  router.push('/')
+}
 
 onMounted(async () => {
 
