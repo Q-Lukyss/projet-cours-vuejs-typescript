@@ -32,7 +32,8 @@ export class UserService {
     async createOrUpdateUser(user: User): Promise<void> {
         try {
             await setDoc(doc(this.db, 'Users', user.uuid), {
-                name: user.name,
+                nom: user.nom,
+                prenom: user.prenom,
                 email: user.email,
                 status: user.statut,
             });
