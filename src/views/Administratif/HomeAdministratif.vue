@@ -3,9 +3,10 @@
 </script>
 
 <template>
-  <h1>Home Administratif</h1>
+  <div class="min-h-screen bg-lightbeige flex items-center justify-center text-darkblue">
+    <h1 class="text-4xl font-bold">Home Administratif</h1>
+  </div>
 </template>
-
 <style scoped>
 
 </style>
