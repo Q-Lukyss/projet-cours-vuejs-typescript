@@ -21,5 +21,32 @@ export const useNewsStore = defineStore('news', () => {
         }
     }
 
-    return { news, loadingNews, errorNews, fetchNews };
+    async function addNews(newsItem: NewsEntity) {
+        try {
+            await newsService.addNews(newsItem);
+            await fetchNews();
+        } catch (err: any) {
+            errorNews.value = err.message;
+        }
+    }
+
+    async function updateNews(newsItem: NewsEntity) {
+        try {
+            await newsService.updateNews(newsItem);
+            await fetchNews();
+        } catch (err: any) {
+            errorNews.value = err.message;
+        }
+    }
+
+    async function deleteNews(newsId: string) {
+        try {
+            await newsService.deleteNews(newsId);
+            await fetchNews();
+        } catch (err: any) {
+            errorNews.value = err.message;
+        }
+    }
+
+    return { news, loadingNews, errorNews, fetchNews, addNews, updateNews, deleteNews };
 });

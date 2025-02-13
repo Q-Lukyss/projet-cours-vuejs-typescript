@@ -1,5 +1,15 @@
-// src/services/news.service.ts
-import {getFirestore, collection, query, orderBy, getDocs, where} from 'firebase/firestore';
+import {
+    getFirestore,
+    collection,
+    query,
+    orderBy,
+    getDocs,
+    where,
+    addDoc,
+    doc,
+    updateDoc,
+    deleteDoc
+} from 'firebase/firestore';
 import { NewsEntity } from '@/entities/news';
 
 export class NewsService {
@@ -8,8 +18,41 @@ export class NewsService {
 
     // Récupère les news triées par date décroissante (les plus récentes en premier)
     async getNews(): Promise<NewsEntity[]> {
-        const q = query(this.collectionRef, where('is_active', '==', true), orderBy('date', 'desc'));
+        const q = query(
+            this.collectionRef,
+            where('is_active', '==', true),
+            orderBy('date', 'desc')
+        );
         const querySnapshot = await getDocs(q);
-        return querySnapshot.docs.map(docSnap => NewsEntity.fromFirestore(docSnap.data(), docSnap.id));
+        return querySnapshot.docs.map(docSnap =>
+            NewsEntity.fromFirestore(docSnap.data(), docSnap.id)
+        );
+    }
+
+    // Ajoute une nouvelle news
+    async addNews(news: NewsEntity): Promise<void> {
+        await addDoc(this.collectionRef, {
+            title: news.title,
+            content: news.content,
+            date: news.date,
+            is_active: news.is_active,
+        });
+    }
+
+    // Met à jour une news existante
+    async updateNews(news: NewsEntity): Promise<void> {
+        const docRef = doc(this.db, 'News', news.uid);
+        await updateDoc(docRef, {
+            title: news.title,
+            content: news.content,
+            date: news.date,
+            is_active: news.is_active,
+        });
+    }
+
+    // Supprime une news
+    async deleteNews(newsId: string): Promise<void> {
+        const docRef = doc(this.db, 'News', newsId);
+        await deleteDoc(docRef);
     }
 }
