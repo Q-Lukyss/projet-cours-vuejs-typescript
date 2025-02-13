@@ -4,7 +4,11 @@ import {
     getDocs,
     query,
     where,
-    documentId
+    documentId,
+    doc,
+    addDoc,
+    updateDoc,
+    deleteDoc
 } from 'firebase/firestore';
 import { Cours } from '@/entities/cours';
 
@@ -29,10 +33,34 @@ export class CoursService {
         return snapshot.docs.map(docSnap => Cours.fromFirestore(docSnap.data(), docSnap.id));
     }
 
-    // (Optionnel) Récupère les cours pour un enseignant en filtrant par id_enseignant
-    async getCoursesForUser(userId: string): Promise<Cours[]> {
-        // Méthode alternative si l'enseignant est le propriétaire du cours
-        // return ... ;
-        return []; // ici nous n'utiliserons pas cette méthode dans ce scénario
+    // Récupère les cours pour un intervenant (filtre sur id_enseignant)
+    async getCoursesForIntervenant(teacherId: string): Promise<Cours[]> {
+        const q = query(this.collectionRef, where('id_enseignant', '==', teacherId));
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map(docSnap => Cours.fromFirestore(docSnap.data(), docSnap.id));
+    }
+
+    async addCours(cours: Cours): Promise<void> {
+        await addDoc(this.collectionRef, {
+            id_enseignant: cours.id_enseignant,
+            nom: cours.nom,
+            seances: cours.seances,   // initialement un tableau vide
+            supports: cours.supports  // initialement un tableau vide
+        });
+    }
+
+    async updateCours(cours: Cours): Promise<void> {
+        const docRef = doc(this.db, 'Cours', cours.uid);
+        await updateDoc(docRef, {
+            id_enseignant: cours.id_enseignant,
+            nom: cours.nom,
+            seances: cours.seances,
+            supports: cours.supports
+        });
+    }
+
+    async deleteCours(coursId: string): Promise<void> {
+        const docRef = doc(this.db, 'Cours', coursId);
+        await deleteDoc(docRef);
     }
 }
