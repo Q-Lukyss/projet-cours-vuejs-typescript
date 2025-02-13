@@ -18,8 +18,8 @@
     <!-- Moyenne générale -->
     <section>
       <h2>Moyenne générale</h2>
-      <div v-if="loadingNotes">Chargement des notes...</div>
-      <div v-else-if="errorNotes">{{ errorNotes }}</div>
+      <div v-if="loadingGlobalNotes">Chargement des notes...</div>
+      <div v-else-if="errorGlobalNotes">{{ errorGlobalNotes }}</div>
       <div v-else>
         <p>{{ averageGrade.toFixed(2) }}</p>
       </div>
@@ -72,7 +72,7 @@ const coursStore = useCoursStore();
 const newsStore = useNewsStore();
 
 const { user } = storeToRefs(authStore);
-const { averageGrade, loadingNotes, errorNotes } = storeToRefs(noteStore);
+const { averageGrade, loadingGlobalNotes, errorGlobalNotes } = storeToRefs(noteStore);
 const { nbPresences, nbAbsences, loadingPresence, errorPresence } = storeToRefs(presenceStore);
 const { upcomingSeances, loadingSeances, errorSeances } = storeToRefs(seanceStore);
 const { courses } = storeToRefs(coursStore);
@@ -121,7 +121,6 @@ onMounted(async () => {
 
     // Charger les cours pour l'utilisateur (par exemple via la formation)
     await coursStore.fetchFormationForUser(user.value.uid);
-    await coursStore.fetchCoursesForUserFormation();
 
     console.log('Cours chargés :', JSON.stringify(courses.value));
 

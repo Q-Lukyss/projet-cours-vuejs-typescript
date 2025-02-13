@@ -34,11 +34,13 @@ import { reactive, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useCoursStore } from '@/stores/cours.store';
 import { useAuthStore } from '@/stores/auth';
+import { useNoteStore } from '@/stores/note.store';
 
 const coursStore = useCoursStore();
 const authStore = useAuthStore();
+const noteStore = useNoteStore();
 
-// Extraire uniquement les états (state) du store
+// Extraire les états du cours et de l'utilisateur
 const { courses, loadingFormation, loadingCourses, errorFormation, errorCourses } = storeToRefs(coursStore);
 const { user } = storeToRefs(authStore);
 
@@ -47,16 +49,19 @@ const expandedNotes = reactive<{ [courseId: string]: boolean }>({});
 const loadingNotes = reactive<{ [courseId: string]: boolean }>({});
 const notesByCourse = reactive<{ [courseId: string]: any[] }>({});
 
-// Fonction de toggle pour les notes
+// Fonction de toggle pour les notes en utilisant le noteStore
 async function toggleNotes(courseId: string) {
   if (expandedNotes[courseId]) {
     expandedNotes[courseId] = false;
   } else {
     expandedNotes[courseId] = true;
+    const key = `${user.value!.uid}_${courseId}`;
+    // Si les notes n'ont pas encore été récupérées, on les charge depuis le noteStore
     if (!notesByCourse[courseId]) {
       loadingNotes[courseId] = true;
-      const notes = await coursStore.fetchNotes(courseId);
-      notesByCourse[courseId] = notes;
+      await noteStore.fetchNotesForStudentAndCourse(user.value!.uid, courseId);
+      // On met à jour notre objet local avec les notes récupérées dans le noteStore
+      notesByCourse[courseId] = noteStore.notesMap[key] || [];
       loadingNotes[courseId] = false;
     }
   }
