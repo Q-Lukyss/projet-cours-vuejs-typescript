@@ -34,6 +34,9 @@ export const usePresenceStore = defineStore('presence', () => {
     }
 
     // Nombre d'absences (is_present === false)
+    const nbPresences = computed(() => presences.value.filter(p => p.is_present).length);
+
+    // Nombre d'absences (is_present === false)
     const nbAbsences = computed(() => presences.value.filter(p => !p.is_present).length);
 
     // Liste des absences à justifier : absence sans justificatifs (null, undefined ou chaîne vide)
@@ -41,5 +44,5 @@ export const usePresenceStore = defineStore('presence', () => {
         presences.value.filter(p => !p.is_present && (!p.justificatifs || p.justificatifs.trim() === ''))
     );
 
-    return { presences, loadingPresence, errorPresence, fetchPresences, updatePresence, nbAbsences, absencesToJustify };
+    return { presences, loadingPresence, errorPresence, fetchPresences, updatePresence, nbAbsences, nbPresences, absencesToJustify };
 });
