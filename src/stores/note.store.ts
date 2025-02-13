@@ -5,31 +5,87 @@ import { Note } from '@/entities/note';
 import { NoteService } from '@/services/note.service';
 
 export const useNoteStore = defineStore('note', () => {
-    const notes = ref<Note[]>([]);
-    const loadingNotes = ref(false);
-    const errorNotes = ref<string | null>(null);
+    // Pour les notes globales (pour la moyenne générale)
+    const globalNotes = ref<Note[]>([]);
+    const loadingGlobalNotes = ref(false);
+    const errorGlobalNotes = ref<string | null>(null);
+
+    // Pour les notes d'un élève dans un cours
+    const notesMap = ref<Record<string, Note[]>>({});
+    const loadingStudentNotes = ref(false);
+    const errorStudentNotes = ref<string | null>(null);
 
     const noteService = new NoteService();
 
-    // Action pour charger les notes de l'utilisateur connecté
     async function fetchNotesForUser(userId: string) {
-        loadingNotes.value = true;
+        loadingGlobalNotes.value = true;
         try {
-            notes.value = await noteService.getNotesForUser(userId);
-            loadingNotes.value = false;
-            console.log(notes.value);
+            globalNotes.value = await noteService.getNotesForUser(userId);
+            loadingGlobalNotes.value = false;
+            console.log("Notes globales :", globalNotes.value);
         } catch (err: any) {
-            errorNotes.value = err.message;
-            loadingNotes.value = false;
+            errorGlobalNotes.value = err.message;
+            loadingGlobalNotes.value = false;
         }
     }
 
-    // Calcul de la moyenne générale de toutes les notes
+    async function fetchNotesForStudentAndCourse(studentId: string, courseId: string) {
+        loadingStudentNotes.value = true;
+        try {
+            const fetchedNotes = await noteService.getNotesForStudentAndCourse(studentId, courseId);
+            notesMap.value[`${studentId}_${courseId}`] = fetchedNotes;
+            loadingStudentNotes.value = false;
+        } catch (err: any) {
+            errorStudentNotes.value = err.message;
+            loadingStudentNotes.value = false;
+        }
+    }
+
+    async function addNoteForStudent(note: Note) {
+        try {
+            await noteService.addNote(note);
+            await fetchNotesForStudentAndCourse(note.id_user, note.id_cours);
+        } catch (err: any) {
+            errorStudentNotes.value = err.message;
+        }
+    }
+
+    async function updateNote(note: Note) {
+        try {
+            await noteService.updateNote(note);
+            await fetchNotesForStudentAndCourse(note.id_user, note.id_cours);
+        } catch (err: any) {
+            errorStudentNotes.value = err.message;
+        }
+    }
+
+    async function deleteNote(noteId: string, studentId: string, courseId: string) {
+        try {
+            await noteService.deleteNote(noteId);
+            await fetchNotesForStudentAndCourse(studentId, courseId);
+        } catch (err: any) {
+            errorStudentNotes.value = err.message;
+        }
+    }
+
     const averageGrade = computed(() => {
-        if (notes.value.length === 0) return 0;
-        const sum = notes.value.reduce((acc, note) => acc + note.note, 0);
-        return sum / notes.value.length;
+        if (globalNotes.value.length === 0) return 0;
+        const sum = globalNotes.value.reduce((acc, note) => acc + note.note, 0);
+        return sum / globalNotes.value.length;
     });
 
-    return { notes, loadingNotes, errorNotes, fetchNotesForUser, averageGrade };
+    return {
+        globalNotes,
+        loadingGlobalNotes,
+        errorGlobalNotes,
+        fetchNotesForUser,
+        averageGrade,
+        notesMap,
+        loadingStudentNotes,
+        errorStudentNotes,
+        fetchNotesForStudentAndCourse,
+        addNoteForStudent,
+        updateNote,
+        deleteNote
+    };
 });
