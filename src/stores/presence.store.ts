@@ -1,8 +1,8 @@
 // src/stores/presence.store.ts
-import {defineStore} from 'pinia';
-import {computed, ref} from 'vue';
-import {Presence} from '@/entities/presence';
-import {PresenceService} from '@/services/presence.service';
+import { defineStore } from 'pinia';
+import { computed, ref } from 'vue';
+import { Presence } from '@/entities/presence';
+import { PresenceService } from '@/services/presence.service';
 
 export const usePresenceStore = defineStore('presence', () => {
     const presences = ref<Presence[]>([]);
@@ -11,11 +11,11 @@ export const usePresenceStore = defineStore('presence', () => {
 
     const presenceService = new PresenceService();
 
-    // Action pour récupérer les présences d'un utilisateur
-    async function fetchPresences(userId: string) {
+    // Récupère toutes les présences (pour l'administration)
+    async function fetchPresences() {
         loadingPresence.value = true;
         try {
-            presences.value = await presenceService.getPresencesForUser(userId);
+            presences.value = await presenceService.getAllPresences();
             loadingPresence.value = false;
         } catch (err: any) {
             errorPresence.value = err.message;
@@ -23,8 +23,15 @@ export const usePresenceStore = defineStore('presence', () => {
         }
     }
 
-    // Nombre de présences (is_present === true)
-    const nbPresences = computed(() => presences.value.filter(p => p.is_present).length);
+    // Met à jour une présence (ex. ajouter un justificatif)
+    async function updatePresence(presence: Presence) {
+        try {
+            await presenceService.updatePresence(presence);
+            await fetchPresences();
+        } catch (err: any) {
+            errorPresence.value = err.message;
+        }
+    }
 
     // Nombre d'absences (is_present === false)
     const nbAbsences = computed(() => presences.value.filter(p => !p.is_present).length);
@@ -34,5 +41,5 @@ export const usePresenceStore = defineStore('presence', () => {
         presences.value.filter(p => !p.is_present && (!p.justificatifs || p.justificatifs.trim() === ''))
     );
 
-    return { presences, loadingPresence, errorPresence, fetchPresences, nbPresences, nbAbsences, absencesToJustify };
+    return { presences, loadingPresence, errorPresence, fetchPresences, updatePresence, nbAbsences, absencesToJustify };
 });

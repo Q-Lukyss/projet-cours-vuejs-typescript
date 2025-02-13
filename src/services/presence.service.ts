@@ -4,7 +4,9 @@ import {
     collection,
     query,
     where,
-    getDocs
+    getDocs,
+    doc,
+    updateDoc
 } from 'firebase/firestore';
 import { Presence } from '@/entities/presence';
 
@@ -12,7 +14,32 @@ export class PresenceService {
     private db = getFirestore();
     private collectionRef = collection(this.db, 'Presences');
 
-    // Récupère les présences pour un utilisateur spécifique
+    // Récupère toutes les présences (toutes absences et présences)
+    async getAllPresences(): Promise<Presence[]> {
+        try {
+            const q = query(this.collectionRef);
+            const querySnapshot = await getDocs(q);
+            return querySnapshot.docs.map(docSnap => Presence.fromFirestore(docSnap.data(), docSnap.id));
+        } catch (error) {
+            console.error("Erreur lors de la récupération des présences :", error);
+            throw error;
+        }
+    }
+
+    // Met à jour une présence (ex. pour ajouter un justificatif)
+    async updatePresence(presence: Presence): Promise<void> {
+        try {
+            const docRef = doc(this.db, 'Presences', presence.uid);
+            await updateDoc(docRef, {
+                justificatifs: presence.justificatifs
+            });
+        } catch (error) {
+            console.error("Erreur lors de la mise à jour de la présence :", error);
+            throw error;
+        }
+    }
+
+    // Méthode existante pour récupérer les présences pour un utilisateur (non utilisée ici)
     async getPresencesForUser(userId: string): Promise<Presence[]> {
         try {
             console.log("userId query:", userId);
@@ -28,5 +55,4 @@ export class PresenceService {
             throw error;
         }
     }
-
 }
