@@ -3,6 +3,7 @@ import {defineStore} from 'pinia';
 import {ref} from 'vue';
 import {User} from '@/entities/user';
 import {UserService} from '@/services/user.service';
+import {addDoc, deleteDoc, doc, updateDoc} from "firebase/firestore";
 
 export const useUserStore = defineStore('user', () => {
     const user = ref<User | null>(null);
@@ -49,5 +50,33 @@ export const useUserStore = defineStore('user', () => {
         }
     }
 
-    return { user, users, loading, error, fetchUser, fetchUsers, saveUser };
+    async function addSUser(user: User) {
+        try {
+            await userService.addUser(User);
+            // Rafraîchir la liste pour le cours concerné
+            await fetchUsers();
+        } catch (err: any) {
+            errorUsers.value = err.message;
+        }
+    }
+
+    async function updateUser(user: User) {
+        try {
+            await userService.updateUser(user);
+            await fetchUsers();
+        } catch (err: any) {
+            errorUsers.value = err.message;
+        }
+    }
+
+    async function deleteUser(userId: string, courseId: string) {
+        try {
+            await userService.deleteUser(userId);
+            await fetchUsers()
+        } catch (err: any) {
+            errorUsers.value = err.message;
+        }
+    }
+
+    return { user, users, loading, error, fetchUser, fetchUsers, saveUser, addSUser, updateUser, deleteUser };
 });

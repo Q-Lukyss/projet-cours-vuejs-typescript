@@ -53,4 +53,30 @@ export class UserService {
             throw error;
         }
     }
+
+    // Ajoute un nouveau user
+    async addUser(user: User): Promise<void> {
+        // Laisser Firestore générer l'ID
+        await addDoc(this.collectionRef, {
+            nom: user.nom,
+            prenom: user.prenom,
+            email: user.email,
+            status: user.statut,
+        });
+    }
+
+    // Met à jour un user existant
+    async updateUser(user: User): Promise<void> {
+        const docRef = doc(this.db, 'Users', user.uid);
+        await updateDoc(docRef, {
+            nom: user.nom,
+            prenom: user.prenom,
+        });
+    }
+
+    // Supprime un user
+    async deleteUser(userId: string): Promise<void> {
+        const docRef = doc(this.db, 'Users', userId);
+        await deleteDoc(docRef);
+    }
 }
