@@ -16,33 +16,38 @@ app.use(createPinia())
 app.provide("firebase", firebaseApp)
 app.use(router)
 
-let appMounted = false  // Flag pour monter l'application une seule fois
-
 const userService = new UserService();
 
-onAuthStateChanged(auth, async (user) => {
-    const authStore = useAuthStore()
-    if (user) {
-        // Récupérer le document utilisateur complet depuis Firestore
-        try {
-            const userData = await userService.getUser(user.uid);
-            if (userData) {
-                // Ici, userData contient le véritable statut (qui peut être 0, 5, 10, etc.)
-                authStore.setUser({ uid: userData.uuid, email: userData.email, statut: parseInt(userData.statut) });
-            } else {
-                // Si le document n'existe pas, vous pouvez choisir de déconnecter l'utilisateur
+const authPromise = new Promise<void>((resolve) => {
+    onAuthStateChanged(getAuth(), async (user) => {
+        const authStore = useAuthStore();
+        if (user) {
+            try {
+                const userData = await userService.getUser(user.uid);
+                if (userData) {
+                    authStore.setUser({
+                        uid: userData.uuid,
+                        email: userData.email,
+                        statut: parseInt(userData.statut)
+                    });
+                } else {
+                    authStore.clearUser();
+                }
+            } catch (error) {
+                console.error("Erreur lors de la récupération de l'utilisateur :", error);
                 authStore.clearUser();
             }
-        } catch (error) {
-            console.error("Erreur lors de la récupération de l'utilisateur :", error);
+        } else {
             authStore.clearUser();
+            // Si l'utilisateur se déconnecte et se trouve sur une route protégée, rediriger immédiatement vers Login
+            if (router.currentRoute.value.meta.requiresAuth) {
+                await router.replace({ name: 'Login' });
+            }
         }
-    } else {
-        authStore.clearUser()
-    }
-    // Monter l'application si ce n'est pas déjà fait
-    if (!appMounted) {
-        app.mount('#app')
-        appMounted = true
-    }
-})
+        resolve();
+    });
+});
+
+authPromise.then(() => {
+    app.mount('#app');
+});
