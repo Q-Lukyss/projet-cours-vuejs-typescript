@@ -1,5 +1,5 @@
 // src/services/formation.service.ts
-import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, query, where, getDocs, doc, updateDoc, addDoc, deleteDoc } from 'firebase/firestore';
 import { Formation } from '@/entities/formation';
 
 export class FormationService {
@@ -16,5 +16,34 @@ export class FormationService {
             return Formation.fromFirestore(docSnap.data(), docSnap.id);
         }
         return null;
+    }
+    // Nouvelle méthode pour récupérer toutes les formations
+    async getFormations(): Promise<Formation[]> {
+        const querySnapshot = await getDocs(this.collectionRef);
+        return querySnapshot.docs.map(docSnap => Formation.fromFirestore(docSnap.data(), docSnap.id));
+    }
+
+    async addFormation(formation: Formation): Promise<void> {
+        await addDoc(this.collectionRef, {
+            annee: formation.annee,
+            nom: formation.nom,
+            cours: formation.cours,    // tableau d'UID de cours
+            eleves: formation.eleves   // tableau d'UID d'élèves
+        });
+    }
+
+    async updateFormation(formation: Formation): Promise<void> {
+        const docRef = doc(this.db, 'Formation', formation.uid);
+        await updateDoc(docRef, {
+            annee: formation.annee,
+            nom: formation.nom,
+            cours: formation.cours,
+            eleves: formation.eleves
+        });
+    }
+
+    async deleteFormation(formationId: string): Promise<void> {
+        const docRef = doc(this.db, 'Formation', formationId);
+        await deleteDoc(docRef);
     }
 }
