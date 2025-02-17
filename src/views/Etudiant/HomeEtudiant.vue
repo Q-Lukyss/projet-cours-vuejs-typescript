@@ -1,52 +1,113 @@
 <template>
-  <div>
-    <!-- Bandeau News -->
-    <section>
-      <h2>News</h2>
-      <div v-if="loadingNews">Chargement des news...</div>
-      <div v-else-if="errorNews">{{ errorNews }}</div>
+  <div class="p-6 bg-lightbeige min-h-screen text-darkblue">
+    <!-- EXEMPLE DE SECTION AVEC SQUELETTES ET CLASSES TAILWIND -->
+    <section class="bg-darkblue text-lightbeige p-6 mb-6 rounded shadow">
+      <h2 class="text-2xl font-semibold mb-4">News</h2>
+
+      <!-- Skeletons de chargement -->
+      <div v-if="loadingNews" class="space-y-4">
+        <!-- On répète 3 “news” en faux chargement -->
+        <div
+            v-for="n in 3"
+            :key="n"
+            class="animate-pulse bg-white bg-opacity-10 p-4 rounded"
+        >
+          <!-- Barres “squelettes” -->
+          <div class="h-4 bg-lightbeige bg-opacity-50 rounded w-3/4 mb-2"></div>
+          <div class="h-4 bg-lightbeige bg-opacity-50 rounded w-1/2"></div>
+        </div>
+      </div>
+
+      <!-- Erreur -->
+      <div v-else-if="errorNews" class="text-red-300">
+        {{ errorNews }}
+      </div>
+
+      <!-- Contenu News -->
       <div v-else>
-        <div v-for="newsItem in news" :key="newsItem.uid" class="news-item">
-          <h3>{{ newsItem.titre }}</h3>
-          <p>{{ newsItem.contenu }}</p>
+        <div
+            v-for="newsItem in news"
+            :key="newsItem.uid"
+            class="bg-lightviolet bg-opacity-10 text-white p-4 rounded mb-2 shadow"
+        >
+          <h3 class="font-bold text-lg text-beige">{{ newsItem.titre }}</h3>
+          <p class="text-sm">{{ newsItem.contenu }}</p>
         </div>
       </div>
     </section>
 
-    <h1>Home Étudiant</h1>
+    <!-- MOYENNE GÉNÉRALE -->
+    <section
+        ref="observerMoyenneRef"
+        class="bg-white text-darkblue p-6 mb-6 rounded shadow"
+    >
+      <h2 class="text-2xl font-semibold mb-4">Moyenne générale</h2>
 
-    <!-- Moyenne générale -->
-    <section>
-      <h2>Moyenne générale</h2>
-      <div v-if="loadingGlobalNotes">Chargement des notes...</div>
-      <div v-else-if="errorGlobalNotes">{{ errorGlobalNotes }}</div>
+      <div v-if="loadingGlobalNotes" class="animate-pulse space-y-2">
+        <!-- Skeleton bars -->
+        <div class="h-4 bg-gray-300 rounded w-3/4"></div>
+        <div class="h-4 bg-gray-300 rounded w-1/2"></div>
+      </div>
+      <div v-else-if="errorGlobalNotes" class="text-red-600">
+        {{ errorGlobalNotes }}
+      </div>
       <div v-else>
-        <p>{{ averageGrade.toFixed(2) }}</p>
+        <p class="text-xl font-bold">
+          {{ averageGrade.toFixed(2) }}
+        </p>
       </div>
     </section>
 
-    <!-- Présence / Absence -->
-    <section>
-      <h2>Présences / Absences</h2>
-      <div v-if="loadingPresence">Chargement des présences...</div>
-      <div v-else-if="errorPresence">{{ errorPresence }}</div>
+    <!-- PRÉSENCES / ABSENCES (avec lazy loading) -->
+    <section
+        ref="observerPresenceRef"
+        class="bg-white text-darkblue p-6 mb-6 rounded shadow"
+    >
+      <h2 class="text-2xl font-semibold mb-4">Présences / Absences</h2>
+
+      <div v-if="loadingPresence" class="animate-pulse space-y-2">
+        <div class="h-4 bg-gray-300 rounded w-3/4"></div>
+        <div class="h-4 bg-gray-300 rounded w-1/2"></div>
+      </div>
+      <div v-else-if="errorPresence" class="text-red-600">
+        {{ errorPresence }}
+      </div>
       <div v-else>
-        <p>Présences : {{ nbPresences }}</p>
-        <p>Absences : {{ nbAbsences }}</p>
+        <p>Présences : <span class="font-semibold">{{ nbPresences }}</span></p>
+        <p>Absences : <span class="font-semibold">{{ nbAbsences }}</span></p>
       </div>
     </section>
 
-    <!-- Cours du prochain jour de séance -->
-    <section>
-      <h2>Cours du prochain jour de séance</h2>
-      <div v-if="loadingSeances">Chargement des séances...</div>
-      <div v-else-if="errorSeances">{{ errorSeances }}</div>
+    <!-- COURS DU PROCHAIN JOUR DE SÉANCE -->
+    <section
+        class="bg-white text-darkblue p-6 mb-6 rounded shadow"
+    >
+      <h2 class="text-2xl font-semibold mb-4">Cours du prochain jour de séance</h2>
+
+      <div v-if="loadingSeances" class="animate-pulse space-y-2">
+        <div class="h-4 bg-gray-300 rounded w-3/4"></div>
+        <div class="h-4 bg-gray-300 rounded w-1/2"></div>
+      </div>
+      <div v-else-if="errorSeances" class="text-red-600">
+        {{ errorSeances }}
+      </div>
       <div v-else>
-        <p v-if="nextCourseDayKey">Séances pour le {{ nextCourseDayKey }} :</p>
+        <p v-if="nextCourseDayKey" class="mb-2">
+          Séances pour le <span class="font-semibold">{{ nextCourseDayKey }}</span> :
+        </p>
         <ul>
-          <li v-for="seance in nextCourseDaySeances" :key="seance.uid">
-            <strong>{{ courseMap[seance.id_cours]?.nom || 'Inconnu' }}</strong>
-            <span> à {{ seance.lieu }}, de {{ formatTime(seance.date) }} à {{ formatTime(seance.date_fin) }}</span>
+          <li
+              v-for="seance in nextCourseDaySeances"
+              :key="seance.uid"
+              class="mb-2"
+          >
+            <strong>
+              {{ courseMap[seance.id_cours]?.nom || 'Inconnu' }}
+            </strong>
+            <span>
+              à {{ seance.lieu }}, de {{ formatTime(seance.date) }}
+              à {{ formatTime(seance.date_fin) }}
+            </span>
           </li>
         </ul>
       </div>
@@ -55,15 +116,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useAuthStore } from '@/stores/auth';
 import { useNoteStore } from '@/stores/note.store';
 import { usePresenceStore } from '@/stores/presence.store';
 import { useSeanceStore } from '@/stores/seance.store';
 import { useCoursStore } from '@/stores/cours.store';
-import {useNewsStore} from "@/stores/news.store.ts";
+import { useNewsStore } from '@/stores/news.store';
 
+// Stores
 const authStore = useAuthStore();
 const noteStore = useNoteStore();
 const presenceStore = usePresenceStore();
@@ -71,6 +133,7 @@ const seanceStore = useSeanceStore();
 const coursStore = useCoursStore();
 const newsStore = useNewsStore();
 
+// Références
 const { user } = storeToRefs(authStore);
 const { averageGrade, loadingGlobalNotes, errorGlobalNotes } = storeToRefs(noteStore);
 const { nbPresences, nbAbsences, loadingPresence, errorPresence } = storeToRefs(presenceStore);
@@ -78,68 +141,95 @@ const { upcomingSeances, loadingSeances, errorSeances } = storeToRefs(seanceStor
 const { courses } = storeToRefs(coursStore);
 const { news, loadingNews, errorNews } = storeToRefs(newsStore);
 
-// Map pour retrouver rapidement les infos d'un cours à partir de son uid
+// Map pour retrouver rapidement les infos d'un cours
 const courseMap = computed(() => {
   const map: Record<string, any> = {};
-  courses.value.forEach(cours => {
+  courses.value.forEach((cours) => {
     map[cours.uid] = cours;
   });
   return map;
 });
 
-// Calculer le "jour" (format YYYY-MM-DD) du prochain cours parmi toutes les séances à venir
+// Trouver le prochain jour de cours
 const nextCourseDayKey = computed(() => {
   if (upcomingSeances.value.length === 0) return null;
-  // On trie les séances par date ascendante
-  const sorted = [...upcomingSeances.value].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  const sorted = [...upcomingSeances.value].sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+  );
   return new Date(sorted[0].date).toISOString().split('T')[0];
 });
 
-// Filtrer pour ne garder que les séances qui correspondent au prochain jour de cours
+// Séances du prochain jour
 const nextCourseDaySeances = computed(() => {
   if (!nextCourseDayKey.value) return [];
-  return upcomingSeances.value.filter(seance => {
+  return upcomingSeances.value.filter((seance) => {
     const seanceDay = new Date(seance.date).toISOString().split('T')[0];
     return seanceDay === nextCourseDayKey.value;
   });
 });
 
-// Fonction pour formater les heures
+// Formater heure
 function formatTime(date: Date): string {
   return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
+// Références pour lazy-loading (IntersectionObserver)
+const observerMoyenneRef = ref(null);
+const observerPresenceRef = ref(null);
+
 onMounted(async () => {
   if (user.value && user.value.uid) {
-    // Charger les news
+    // Charger les news immédiatement
     await newsStore.fetchNews();
-    console.log('News : ' + news.value );
 
-    // Charger les notes et présences pour l'utilisateur connecté
+    // Charger notes et présences
     await noteStore.fetchNotesForUser(user.value.uid);
-    await presenceStore.fetchPresences(user.value.uid);
+    await presenceStore.fetchPresencesForUser(user.value.uid);
 
-    // Charger les cours pour l'utilisateur (par exemple via la formation)
-    await coursStore.fetchFormationForUser(user.value.uid);
+    // Charger la formation puis toutes les séances
+    // await coursStore.fetchFormationForUser(user.value.uid);
+    await coursStore.fetchFormationAndCoursesForUser(user.value.uid);
+    // await coursStore.fetchCoursesForFormation();
 
-    console.log('Cours chargés :', JSON.stringify(courses.value));
+    console.log(courses)
 
-    // Si des cours sont chargés, récupérer toutes les séances à venir
     if (courses.value.length > 0) {
-      const courseIds = courses.value.map(cours => cours.uid);
+      const courseIds = courses.value.map((cours) => cours.uid);
       await seanceStore.fetchUpcomingSeancesForCourses(courseIds);
-      console.log("Toutes les séances à venir :", JSON.stringify(upcomingSeances.value));
-      console.log("Prochain jour de séance :", nextCourseDayKey.value);
-      console.log("Séances du prochain jour :", JSON.stringify(nextCourseDaySeances.value));
-    } else {
-      console.log("Aucun cours n'a été chargé.");
     }
   }
+
+  // Exemple simple de lazy loading : on pourrait “différer” le chargement
+  // en observant si la section "Présences" est visible, etc.
+  const options = {
+    root: null,
+    rootMargin: '0px',
+    threshold: 0.1, // si 10% de la section est visible
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      // Quand la section "moyenne" devient visible, par ex.
+      if (entry.isIntersecting && entry.target === observerMoyenneRef.value) {
+        // On peut lancer un chargement supplémentaire si nécessaire, ex:
+        // noteStore.fetchSomethingElse();
+        // Et on arrête l’observer pour éviter de le refaire 100 fois
+        observer.unobserve(entry.target);
+      }
+
+      // Même idée pour la section "Présences/Absences"
+      if (entry.isIntersecting && entry.target === observerPresenceRef.value) {
+        // presenceStore.fetchSomethingElse();
+        observer.unobserve(entry.target);
+      }
+    });
+  }, options);
+
+  if (observerMoyenneRef.value) observer.observe(observerMoyenneRef.value);
+  if (observerPresenceRef.value) observer.observe(observerPresenceRef.value);
 });
 </script>
 
 <style scoped>
-section {
-  margin-bottom: 2rem;
-}
+/* Tailwind gère déjà la plupart du style, mais tu peux ajouter des ajustements ici si besoin. */
 </style>
