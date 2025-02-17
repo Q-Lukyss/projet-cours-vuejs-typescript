@@ -5,7 +5,10 @@ import {
     doc,
     getDoc,
     setDoc,
-    getDocs
+    getDocs,
+    updateDoc,
+    deleteDoc,
+    addDoc,
 } from 'firebase/firestore';
 import { User } from '@/entities/user';
 
@@ -31,7 +34,7 @@ export class UserService {
     // Crée ou met à jour un user dans Firestore
     async createOrUpdateUser(user: User): Promise<void> {
         try {
-            await setDoc(doc(this.db, 'Users', user.uuid), {
+            await setDoc(doc(this.db, 'Users', user.uid), {
                 nom: user.nom,
                 prenom: user.prenom,
                 email: user.email,
