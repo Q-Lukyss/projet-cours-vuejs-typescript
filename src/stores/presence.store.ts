@@ -23,6 +23,17 @@ export const usePresenceStore = defineStore('presence', () => {
         }
     }
 
+    async function fetchPresencesForUser(userId : string) : Promise<void> {
+        loadingPresence.value = true;
+        try {
+            presences.value = await presenceService.getPresencesForUser(userId);
+            loadingPresence.value = false;
+        } catch (err: any) {
+            errorPresence.value = err.message;
+            loadingPresence.value = false;
+        }
+    }
+
     // Met à jour une présence (ex. ajouter un justificatif)
     async function updatePresence(presence: Presence) {
         try {
@@ -41,8 +52,8 @@ export const usePresenceStore = defineStore('presence', () => {
 
     // Liste des absences à justifier : absence sans justificatifs (null, undefined ou chaîne vide)
     const absencesToJustify = computed(() =>
-        presences.value.filter(p => !p.is_present && (!p.justificatifs || p.justificatifs.trim() === ''))
+        presences.value.filter(p => !p.is_present && (!p.justificatifs || p.justificatifs.length > 0))
     );
 
-    return { presences, loadingPresence, errorPresence, fetchPresences, updatePresence, nbAbsences, nbPresences, absencesToJustify };
+    return { presences, loadingPresence, errorPresence, fetchPresences, updatePresence, fetchPresencesForUser, nbAbsences, nbPresences, absencesToJustify };
 });

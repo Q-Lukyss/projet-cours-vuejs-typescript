@@ -47,7 +47,7 @@ export class PresenceService {
             const querySnapshot = await getDocs(presencesQuery);
             console.log("Nombre de documents retournés:", querySnapshot.size);
             querySnapshot.forEach(docSnap => {
-                console.log("Document trouvé:", docSnap.id, docSnap.data());
+                console.log("Presence trouvé:", docSnap.id, docSnap.data());
             });
             return querySnapshot.docs.map(docSnap => Presence.fromFirestore(docSnap.data(), docSnap.id));
         } catch (error) {
