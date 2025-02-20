@@ -1,93 +1,131 @@
 <template>
-  <div>
-    <h1>Gestion des Absences à Justifier (Admin)</h1>
+  <div class="p-6 bg-lightbeige min-h-screen text-darkblue">
+    <!-- Section principale, observée pour lazy loading -->
+    <section
+        ref="absenceObserverRef"
+        class="bg-white shadow rounded max-w-4xl mx-auto p-6"
+    >
+      <h1 class="text-2xl font-bold mb-4">
+        Gestion des Absences à Justifier (Admin)
+      </h1>
 
-    <section v-if="loadingPresence">
-      <p>Chargement des absences...</p>
-    </section>
+      <!-- Skeleton de chargement -->
+      <div v-if="loadingPresence" class="space-y-3">
+        <div class="animate-pulse">
+          <div class="h-4 bg-gray-300 rounded w-2/3 mb-2"></div>
+          <div class="h-4 bg-gray-300 rounded w-1/2"></div>
+        </div>
+      </div>
 
-    <section v-if="!loadingPresence && absencesToJustify.length">
-      <table>
-        <thead>
-        <tr>
-          <th>Utilisateur</th>
-          <th>Date</th>
-          <th>Justificatif</th>
-          <th>Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr v-for="absence in absencesToJustify" :key="absence.uid">
-          <td>{{ absence.id_user }}</td>
-          <td>{{ formatDate(absence.date) }}</td>
-          <td>
-            <!-- On utilise un input local pour saisir le justificatif -->
-            <input v-model="absence.justificatifs" placeholder="Ajouter justificatif" />
-          </td>
-          <td>
-            <button @click="onJustify(absence)">Justifier</button>
-          </td>
-        </tr>
-        </tbody>
-      </table>
-    </section>
+      <!-- Erreur -->
+      <div v-else-if="errorPresence" class="text-red-600 mb-4">
+        {{ errorPresence }}
+      </div>
 
-    <section v-else-if="!loadingPresence && absencesToJustify.length === 0">
-      <p>Aucune absence à justifier.</p>
-    </section>
+      <!-- Tableau des absences à justifier -->
+      <div v-else-if="absencesToJustify.length">
+        <table class="w-full border border-gray-200 divide-y divide-gray-200">
+          <thead class="bg-gray-100">
+          <tr>
+            <th class="py-2 px-4 text-left text-sm font-semibold text-darkblue uppercase">
+              Utilisateur
+            </th>
+            <th class="py-2 px-4 text-left text-sm font-semibold text-darkblue uppercase">
+              Justificatif
+            </th>
+            <th class="py-2 px-4 text-left text-sm font-semibold text-darkblue uppercase">
+              Actions
+            </th>
+          </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+          <tr
+              v-for="absence in absencesToJustify"
+              :key="absence.uid"
+          >
+            <td class="py-2 px-4 text-sm">
+              {{ absence.id_user }}
+            </td>
+            <td class="py-2 px-4 text-sm">
+              <input
+                  v-model="absence.justificatifs"
+                  placeholder="Ajouter justificatif"
+                  class="border border-gray-300 rounded px-2 py-1 w-full"
+              />
+            </td>
+            <td class="py-2 px-4 text-sm">
+              <button
+                  @click="onJustify(absence)"
+                  class="bg-lightviolet text-white px-3 py-1 rounded hover:bg-violet"
+              >
+                Justifier
+              </button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
 
-    <section v-if="errorPresence">
-      <p class="error">{{ errorPresence }}</p>
+      <!-- Pas d'absences à justifier -->
+      <div v-else>
+        <p class="text-gray-700">
+          Aucune absence à justifier.
+        </p>
+      </div>
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
+import { storeToRefs } from 'pinia';
 import { usePresenceStore } from '@/stores/presence.store';
 
+// Récupération du store Presence
 const presenceStore = usePresenceStore();
-const { absencesToJustify, fetchPresences, updatePresence, loadingPresence, errorPresence } = presenceStore;
+const {
+  absencesToJustify,
+  loadingPresence,
+  errorPresence,
+} = storeToRefs(presenceStore);
 
+// Référence pour l’Intersection Observer (lazy loading)
+const absenceObserverRef = ref(null);
+
+// Montée en charge : on récupère la liste des absences
 onMounted(async () => {
-  await fetchPresences();
+  await presenceStore.fetchPresences();
+
+  // Mise en place de l’Intersection Observer
+  const options = {
+    root: null,
+    rootMargin: '0px',
+    threshold: 0.1,
+  };
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting && entry.target === absenceObserverRef.value) {
+        // Charger d’autres données si nécessaire...
+        observer.unobserve(entry.target);
+      }
+    });
+  }, options);
+
+  if (absenceObserverRef.value) {
+    observer.observe(absenceObserverRef.value);
+  }
 });
 
-function formatDate(date: Date | string): string {
-  return new Date(date).toLocaleString();
-}
-
+// Justifier une absence
 async function onJustify(absence: any) {
-  // Vérifier que le justificatif est renseigné
   if (absence.justificatifs && absence.justificatifs.trim() !== '') {
-    await updatePresence(absence);
+    await presenceStore.updatePresence(absence);
   } else {
-    alert("Veuillez renseigner le justificatif.");
+    alert('Veuillez renseigner le justificatif.');
   }
 }
 </script>
 
 <style scoped>
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
-}
-th, td {
-  border: 1px solid #ddd;
-  padding: 0.5rem;
-  text-align: left;
-}
-th {
-  background-color: #f2f2f2;
-}
-input {
-  width: 100%;
-  padding: 0.3rem;
-  box-sizing: border-box;
-}
-.error {
-  color: red;
-  margin-top: 1rem;
-}
+/* Tout est géré en Tailwind, tu peux ajouter des ajustements minimes ici si nécessaire. */
 </style>
