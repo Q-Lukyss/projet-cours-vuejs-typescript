@@ -2,9 +2,9 @@ export class NewsEntity {
     constructor(
         public uid: string,
         public titre: string,
-        public contenu: boolean,
+        public contenu: string,
         public date: Date,
-        public is_active: string
+        public is_active: boolean
     ) {}
 
     // Méthode utilitaire pour créer une instance à partir des données Firestore

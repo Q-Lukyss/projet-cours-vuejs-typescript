@@ -32,8 +32,8 @@ export class NewsService {
     // Ajoute une nouvelle news
     async addNews(news: NewsEntity): Promise<void> {
         await addDoc(this.collectionRef, {
-            title: news.title,
-            content: news.content,
+            titre: news.titre,
+            contenu: news.contenu,
             date: news.date,
             is_active: news.is_active,
         });
@@ -43,8 +43,8 @@ export class NewsService {
     async updateNews(news: NewsEntity): Promise<void> {
         const docRef = doc(this.db, 'News', news.uid);
         await updateDoc(docRef, {
-            title: news.title,
-            content: news.content,
+            titre: news.titre,
+            contenu: news.contenu,
             date: news.date,
             is_active: news.is_active,
         });
