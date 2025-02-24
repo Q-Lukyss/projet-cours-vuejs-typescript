@@ -1,19 +1,26 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import { useAuthStore } from "@/stores/auth";
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+
+// Pour eviter l'erreur de Build
+declare module 'vue-router' {
+  interface RouteMeta {
+    allowedStatuses?: number[];
+    requiresAuth?: boolean;
+  }
+}
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
     name: 'Login',
-    component: () => import('../views/Login.vue'),
+    component: () => import('@/views/Login.vue'),
   },
     // Etudiant
   {
     path: '/dashboard',
     name: 'DashboardEtudiant',
-    component: () => import('../views/Etudiant/HomeEtudiant.vue'),
+    component: () => import('@/views/Etudiant/HomeEtudiant.vue'),
     meta: {
       allowedStatuses: [0],
       requiresAuth: true
@@ -22,7 +29,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/note',
     name: 'Note',
-    component: () => import('../views/Etudiant/Note.vue'),
+    component: () => import('@/views/Etudiant/Note.vue'),
     meta: {
       allowedStatuses: [0],
       requiresAuth: true
@@ -31,7 +38,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/presence',
     name: 'Presence',
-    component: () => import('../views/Etudiant/Presence.vue'),
+    component: () => import('@/views/Etudiant/Presence.vue'),
     meta: {
       allowedStatuses: [0],
       requiresAuth: true
@@ -40,7 +47,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/administratif',
     name: 'Administratif',
-    component: () => import('../views/Etudiant/Administratif.vue'),
+    component: () => import('@/views/Etudiant/Administratif.vue'),
     meta: {
       allowedStatuses: [0],
       requiresAuth: true
@@ -49,7 +56,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/support-cours',
     name: 'Support Cours',
-    component: () => import('../views/Etudiant/SupportCours.vue'),
+    component: () => import('@/views/Etudiant/SupportCours.vue'),
     meta: {
       allowedStatuses: [0],
       requiresAuth: true
@@ -58,7 +65,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/calendrier-etudiant',
     name: 'CalendrierEtudiant',
-    component: () => import('../views/Etudiant/Calendrier.vue'),
+    component: () => import('@/views/Etudiant/Calendrier.vue'),
     meta: {
       allowedStatuses: [0],
       requiresAuth: true
@@ -68,7 +75,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/dashboard-intervenant',
     name: 'DashboardIntervenant',
-    component: () => import('../views/Intervenant/HomeIntervenant.vue'),
+    component: () => import('@/views/Intervenant/HomeIntervenant.vue'),
     meta: {
       allowedStatuses: [5],
       requiresAuth: true
@@ -77,7 +84,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/formation-intervenant',
     name: 'FormationIntervenant',
-    component: () => import('../views/Intervenant/Formation.vue'),
+    component: () => import('@/views/Intervenant/Formation.vue'),
     meta: {
       allowedStatuses: [5],
       requiresAuth: true
@@ -86,7 +93,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/support-cours-intervenant',
     name: 'SupportIntervenant',
-    component: () => import('../views/Intervenant/SupportCours.vue'),
+    component: () => import('@/views/Intervenant/SupportCours.vue'),
     meta: {
       allowedStatuses: [5],
       requiresAuth: true
@@ -95,7 +102,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/note-intervenant',
     name: 'NoteIntervenant',
-    component: () => import('../views/Intervenant/Note.vue'),
+    component: () => import('@/views/Intervenant/Note.vue'),
     meta: {
       allowedStatuses: [5],
       requiresAuth: true
@@ -105,7 +112,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/dashboard-administratif',
     name: 'DashboardAdministratif',
-    component: () => import('../views/Administratif/HomeAdministratif.vue'),
+    component: () => import('@/views/Administratif/HomeAdministratif.vue'),
     meta: {
       allowedStatuses: [10],
       requiresAuth: true
@@ -114,7 +121,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/absences',
     name: 'AbsenceAdministratif',
-    component: () => import('../views/Administratif/Absence.vue'),
+    component: () => import('@/views/Administratif/Absence.vue'),
     meta: {
       allowedStatuses: [10],
       requiresAuth: true
@@ -123,7 +130,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/news',
     name: 'NewsAdministratif',
-    component: () => import('../views/Administratif/News.vue'),
+    component: () => import('@/views/Administratif/News.vue'),
     meta: {
       allowedStatuses: [10],
       requiresAuth: true
@@ -132,7 +139,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/utilisateurs',
     name: 'UtilisateursAdministratif',
-    component: () => import('../views/Administratif/Utilisateur.vue'),
+    component: () => import('@/views/Administratif/Utilisateur.vue'),
     meta: {
       allowedStatuses: [10],
       requiresAuth: true
@@ -141,7 +148,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/formation',
     name: 'FormationAdministratif',
-    component: () => import('../views/Administratif/Formation.vue'),
+    component: () => import('@/views/Administratif/Formation.vue'),
     meta: {
       allowedStatuses: [10],
       requiresAuth: true
@@ -155,16 +162,6 @@ const router = createRouter({
   routes
 });
 
-// Fonction d'attente pour l'initialisation de l'authentification
-function waitForAuth() {
-  return new Promise((resolve) => {
-    const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      unsubscribe();
-      resolve(user);
-    });
-  });
-}
 
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore();
@@ -186,7 +183,7 @@ router.beforeEach(async (to, from, next) => {
     }
     return next();
   } else {
-    // Si l'utilisateur n'est pas connecté, rediriger vers Login (replace pour ne pas polluer l'historique)
+    // Si l'utilisateur n'est pas connecté, rediriger vers Login (replace pour ne pas polluer l'historique).
     return next({ name: 'Login', replace: true });
   }
 });
