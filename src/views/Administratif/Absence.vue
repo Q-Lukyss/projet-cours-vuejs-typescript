@@ -92,16 +92,15 @@ const {
 // Référence pour l’Intersection Observer (lazy loading)
 const absenceObserverRef = ref(null);
 
-// Montée en charge : on récupère la liste des absences
 onMounted(async () => {
   await presenceStore.fetchPresences();
 
-  // Mise en place de l’Intersection Observer
   const options = {
     root: null,
     rootMargin: '0px',
     threshold: 0.1,
   };
+
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting && entry.target === absenceObserverRef.value) {
@@ -116,7 +115,6 @@ onMounted(async () => {
   }
 });
 
-// Justifier une absence
 async function onJustify(absence: any) {
   if (absence.justificatifs && absence.justificatifs.trim() !== '') {
     await presenceStore.updatePresence(absence);
@@ -125,7 +123,3 @@ async function onJustify(absence: any) {
   }
 }
 </script>
-
-<style scoped>
-/* Tout est géré en Tailwind, tu peux ajouter des ajustements minimes ici si nécessaire. */
-</style>

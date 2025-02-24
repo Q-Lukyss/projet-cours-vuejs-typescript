@@ -123,26 +123,19 @@ const formationStore = useFormationStore();
 const coursStore = useCoursStore();
 const seanceStore = useSeanceStore();
 
-// Extraction depuis FormationStore
 const { formations, fetchFormations, addFormation, updateFormation, deleteFormation } =
     formationStore;
-// Extraction depuis CoursStore
 const { courses, fetchCourses, addCours, updateCours, deleteCours } = coursStore;
-// Extraction depuis SeanceStore
 const { seances, fetchSeancesForCourse, addSeance, deleteSeance } = seanceStore;
 
-// Variables de formulaire pour Formation
 const newFormation = ref<Pick<Formation, 'nom' | 'annee'>>({ nom: '', annee: '' });
 const editingFormation = ref<Formation | null>(null);
 
-// Variables de formulaire pour Cours
 const newCours = ref<Pick<Cours, 'nom' | 'id_enseignant'>>({ nom: '', id_enseignant: '' });
 const editingCours = ref<Cours | null>(null);
 
-// Variables de formulaire pour Séance
 const newSeance = ref({ date: '', date_fin: '', lieu: '' });
 
-// Dictionnaires pour stocker les séances et l'état de chargement par cours
 const seancesByCourse = ref<Record<string, SeanceEntity[]>>({});
 const loadingSeances = ref<Record<string, boolean>>({});
 
@@ -220,7 +213,7 @@ async function loadSeances(courseId: string) {
 function getSeancesForCourse(courseId: string): SeanceEntity[] {
   return seancesByCourse.value[courseId] || [];
 }
-// Lors de l'ouverture/fermeture d'un <details>, charger les séances si non déjà chargées
+
 function handleCourseToggle(courseId: string, event: Event) {
   const details = event.target as HTMLDetailsElement;
   if (details.open && !seancesByCourse.value[courseId]) {

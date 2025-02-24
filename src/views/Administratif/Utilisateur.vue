@@ -78,12 +78,9 @@ import type { User } from '@/entities/user';
 const userStore = useUserStore();
 const { users, fetchUsers, addSUser, updateUser, deleteUser } = userStore;
 
-// Formulaire d'ajout
 const newUser = ref({ nom: '', prenom: '', email: '', statut: '' });
-// Utilisateur en cours d'édition
 const editingUser = ref<User | null>(null);
 
-// Variables pour le tri
 const sortKey = ref<'nom' | 'prenom' | 'statut'>('nom');
 const sortOrder = ref<'asc' | 'desc'>('asc');
 
@@ -112,7 +109,6 @@ function sortBy(key: 'nom' | 'prenom' | 'statut') {
   }
 }
 
-// Ajout d'un utilisateur
 async function onAddUser() {
   if (newUser.value.nom && newUser.value.prenom && newUser.value.email && newUser.value.statut) {
     await addSUser(newUser.value as User);
@@ -120,17 +116,14 @@ async function onAddUser() {
   }
 }
 
-// Prépare la modification d'un utilisateur
 function startEditingUser(user: User) {
   editingUser.value = { ...user };
 }
 
-// Annule la modification
 function cancelEditingUser() {
   editingUser.value = null;
 }
 
-// Enregistre les modifications
 async function onUpdateUser() {
   if (editingUser.value) {
     await updateUser(editingUser.value);
@@ -138,7 +131,6 @@ async function onUpdateUser() {
   }
 }
 
-// Suppression d'un utilisateur
 async function onDeleteUser(userId: string) {
   await deleteUser(userId, '');
 }

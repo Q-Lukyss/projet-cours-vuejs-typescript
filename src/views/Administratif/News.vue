@@ -6,17 +6,6 @@
     >
       <h1 class="text-2xl font-bold mb-6">Gestion des News (Admin)</h1>
 
-      <!-- Squelette de chargement
-           (Si tu as un loading state, par exemple `loadingNews`) -->
-      <!--
-      <div v-if="loadingNews" class="space-y-3 mb-4">
-        <div class="animate-pulse">
-          <div class="h-4 bg-gray-300 rounded w-2/3 mb-2"></div>
-          <div class="h-4 bg-gray-300 rounded w-1/2"></div>
-        </div>
-      </div>
-      -->
-
       <!-- Formulaire d'ajout d'une news -->
       <section class="mb-6">
         <h2 class="text-xl font-semibold mb-4">Ajouter une News</h2>
@@ -134,21 +123,17 @@ import { storeToRefs } from 'pinia';
 import { useNewsStore } from '@/stores/news.store';
 import type { NewsEntity } from '@/entities/news';
 
-// Récupération du store des news
 const newsStore = useNewsStore();
 const {
   news
-  // Si tu as un loading state: loadingNews, errorNews, etc. (optionnel)
 } = storeToRefs(newsStore);
 
-// Formulaire d'ajout
 const newNews = ref({
   titre: '',
   contenu: '',
   date: new Date(),
 });
 
-// News en cours d'édition
 // const editingNews = ref<NewsEntity | null>(null);
 
 interface EditableNewsEntity extends NewsEntity {
@@ -156,18 +141,15 @@ interface EditableNewsEntity extends NewsEntity {
 }
 const editingNews = ref<EditableNewsEntity | null>(null);
 
-// Chargement des news au montage
 onMounted(async () => {
   await newsStore.fetchNews();
   setupObserver(); // Mise en place de l'IntersectionObserver (lazy loading)
 });
 
-// Formater la date
 function formatDate(date: Date | string): string {
   return new Date(date).toLocaleString();
 }
 
-// Ajouter une news
 async function onAddNews() {
   if (newNews.value.titre && newNews.value.contenu && newNews.value.date) {
     const newsToAdd: NewsEntity = {
@@ -183,7 +165,6 @@ async function onAddNews() {
   }
 }
 
-// Commencer la modification
 function startEditingNews(item: NewsEntity) {
   // DateTime-local attend un format "YYYY-MM-DDTHH:mm"
   editingNews.value = {
@@ -192,12 +173,10 @@ function startEditingNews(item: NewsEntity) {
   };
 }
 
-// Annuler la modification
 function cancelEditingNews() {
   editingNews.value = null;
 }
 
-// Enregistrer les modifications
 async function onUpdateNews() {
   if (editingNews.value) {
     const updatedNews: NewsEntity = {
@@ -210,21 +189,18 @@ async function onUpdateNews() {
   }
 }
 
-// Supprimer une news
 async function onDeleteNews(newsId: string) {
   await newsStore.deleteNews(newsId);
   await newsStore.fetchNews();
 }
 
-// IntersectionObserver pour lazy loading
+// lazy loading
 const newsObserverRef = ref(null);
 function setupObserver() {
   const options = { root: null, rootMargin: '0px', threshold: 0.1 };
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting && entry.target === newsObserverRef.value) {
-        // Tu peux déclencher un chargement additionnel si besoin
-        // e.g. newsStore.fetchMoreNews();
         observer.unobserve(entry.target);
       }
     });
@@ -235,8 +211,3 @@ function setupObserver() {
   }
 }
 </script>
-
-<style scoped>
-/* Tout le style principal est géré par Tailwind,
-   tu peux ajouter ici des ajustements minimes si besoin. */
-</style>
