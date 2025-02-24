@@ -1,119 +1,3 @@
-<script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import { storeToRefs } from 'pinia';
-import { useAuthStore } from '@/stores/auth';
-import { useCoursStore } from '@/stores/cours.store';
-import { useFormationStore } from '@/stores/formation.store';
-import { useSupportStore } from '@/stores/support.store';
-
-const authStore = useAuthStore();
-const coursStore = useCoursStore();
-const formationStore = useFormationStore();
-const supportStore = useSupportStore();
-
-// Extraire les états réactifs
-const { user } = storeToRefs(authStore);
-const { courses, loadingCourses, errorCourses } = storeToRefs(coursStore);
-const { formations, loadingFormations, errorFormations } = storeToRefs(formationStore);
-const { supports, loadingSupports, errorSupports } = storeToRefs(supportStore);
-
-// Calculer les formations dans lesquelles l'intervenant donne au moins un cours
-const formationsWithCourses = computed(() => {
-  return formations.value
-      .map((formation) => {
-        const formationCourses = courses.value.filter((course) =>
-            formation.cours.includes(course.uid)
-        );
-        return { formation, courses: formationCourses };
-      })
-      .filter((item) => item.courses.length > 0);
-});
-
-// Gérer le support du cours sélectionné
-const selectedCourseId = ref<string | null>(null);
-const newSupportName = ref('');
-const editingSupportId = ref<string | null>(null);
-const editedSupportName = ref('');
-
-// Lorsqu'un cours est déroulé, on charge ses supports
-async function onCourseToggle(courseId: string, event: Event) {
-  const detailsEl = event.target as HTMLDetailsElement;
-  if (detailsEl.open) {
-    selectedCourseId.value = courseId;
-    await supportStore.fetchSupportsForCourse(courseId);
-  } else {
-    if (selectedCourseId.value === courseId) {
-      selectedCourseId.value = null;
-    }
-  }
-}
-
-// Démarrer l'édition d'un support
-function startEditing(support: any) {
-  editingSupportId.value = support.uid;
-  editedSupportName.value = support.nom;
-}
-
-// Sauvegarder le support modifié
-async function saveSupport(support: any) {
-  if (editedSupportName.value.trim() !== '') {
-    await supportStore.updateSupport({
-      uid: support.uid,
-      id_cours: support.id_cours,
-      nom: editedSupportName.value,
-    });
-    editingSupportId.value = null;
-    editedSupportName.value = '';
-  }
-}
-
-// Supprimer un support
-async function deleteSupportItem(supportId: string) {
-  if (selectedCourseId.value) {
-    await supportStore.deleteSupport(supportId, selectedCourseId.value);
-  }
-}
-
-// Ajouter un nouveau support
-async function addNewSupport(courseId: string) {
-  if (newSupportName.value.trim() !== '') {
-    await supportStore.addSupport({
-      uid: '', // Firestore ou autre générera l'ID
-      id_cours: courseId,
-      nom: newSupportName.value,
-    });
-    newSupportName.value = '';
-  }
-}
-
-// Chargement initial
-onMounted(async () => {
-  if (user.value && user.value.uid) {
-    await formationStore.fetchFormations();
-    await coursStore.fetchCoursesForIntervenant(user.value.uid);
-  }
-});
-
-// IntersectionObserver pour lazy loading si besoin
-const observerSupportRef = ref(null);
-onMounted(() => {
-  const options = { root: null, rootMargin: '0px', threshold: 0.1 };
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting && entry.target === observerSupportRef.value) {
-        // Possibilité de charger des données supplémentaires
-        // supportStore.fetchSomethingElse();
-        observer.unobserve(entry.target);
-      }
-    });
-  }, options);
-
-  if (observerSupportRef.value) {
-    observer.observe(observerSupportRef.value);
-  }
-});
-</script>
-
 <template>
   <div class="p-6 bg-lightbeige min-h-screen text-darkblue">
     <section
@@ -257,6 +141,111 @@ onMounted(() => {
     </section>
   </div>
 </template>
+
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue';
+import { storeToRefs } from 'pinia';
+import { useAuthStore } from '@/stores/auth';
+import { useCoursStore } from '@/stores/cours.store';
+import { useFormationStore } from '@/stores/formation.store';
+import { useSupportStore } from '@/stores/support.store';
+
+const authStore = useAuthStore();
+const coursStore = useCoursStore();
+const formationStore = useFormationStore();
+const supportStore = useSupportStore();
+
+const { user } = storeToRefs(authStore);
+const { courses, loadingCourses, errorCourses } = storeToRefs(coursStore);
+const { formations, loadingFormations, errorFormations } = storeToRefs(formationStore);
+const { supports, loadingSupports, errorSupports } = storeToRefs(supportStore);
+
+// Calculer les formations dans lesquelles l'intervenant donne au moins un cours
+const formationsWithCourses = computed(() => {
+  return formations.value
+      .map((formation) => {
+        const formationCourses = courses.value.filter((course) =>
+            formation.cours.includes(course.uid)
+        );
+        return { formation, courses: formationCourses };
+      })
+      .filter((item) => item.courses.length > 0);
+});
+
+const selectedCourseId = ref<string | null>(null);
+const newSupportName = ref('');
+const editingSupportId = ref<string | null>(null);
+const editedSupportName = ref('');
+
+async function onCourseToggle(courseId: string, event: Event) {
+  const detailsEl = event.target as HTMLDetailsElement;
+  if (detailsEl.open) {
+    selectedCourseId.value = courseId;
+    await supportStore.fetchSupportsForCourse(courseId);
+  } else {
+    if (selectedCourseId.value === courseId) {
+      selectedCourseId.value = null;
+    }
+  }
+}
+
+function startEditing(support: any) {
+  editingSupportId.value = support.uid;
+  editedSupportName.value = support.nom;
+}
+
+async function saveSupport(support: any) {
+  if (editedSupportName.value.trim() !== '') {
+    await supportStore.updateSupport({
+      uid: support.uid,
+      id_cours: support.id_cours,
+      nom: editedSupportName.value,
+    });
+    editingSupportId.value = null;
+    editedSupportName.value = '';
+  }
+}
+
+async function deleteSupportItem(supportId: string) {
+  if (selectedCourseId.value) {
+    await supportStore.deleteSupport(supportId, selectedCourseId.value);
+  }
+}
+
+async function addNewSupport(courseId: string) {
+  if (newSupportName.value.trim() !== '') {
+    await supportStore.addSupport({
+      uid: '', // Firestore ou autre générera l'ID
+      id_cours: courseId,
+      nom: newSupportName.value,
+    });
+    newSupportName.value = '';
+  }
+}
+
+onMounted(async () => {
+  if (user.value && user.value.uid) {
+    await formationStore.fetchFormations();
+    await coursStore.fetchCoursesForIntervenant(user.value.uid);
+  }
+});
+
+const observerSupportRef = ref(null);
+onMounted(() => {
+  const options = { root: null, rootMargin: '0px', threshold: 0.1 };
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting && entry.target === observerSupportRef.value) {
+        observer.unobserve(entry.target);
+      }
+    });
+  }, options);
+
+  if (observerSupportRef.value) {
+    observer.observe(observerSupportRef.value);
+  }
+});
+</script>
 
 <style scoped>
 details {

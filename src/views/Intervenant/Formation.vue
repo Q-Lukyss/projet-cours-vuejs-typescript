@@ -1,61 +1,3 @@
-<script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
-import { storeToRefs } from 'pinia';
-import { useAuthStore } from '@/stores/auth';
-import { useCoursStore } from '@/stores/cours.store';
-import { useFormationStore } from '@/stores/formation.store';
-
-const authStore = useAuthStore();
-const coursStore = useCoursStore();
-const formationStore = useFormationStore();
-
-const { user } = storeToRefs(authStore);
-const { courses, loadingCourses, errorCourses } = storeToRefs(coursStore);
-const { formations, loadingFormations, errorFormations } = storeToRefs(formationStore);
-
-// Calculer les formations dans lesquelles l'intervenant donne au moins un cours
-// Pour chaque formation, on vérifie si la liste des cours de la formation (formation.cours)
-// contient au moins un cours issu des cours de l'intervenant
-const formationsWithCourses = computed(() => {
-  return formations.value
-      .map((formation) => {
-        // Filtrer les cours de l'intervenant dont l'uid est dans la formation.cours
-        const formationCourses = courses.value.filter((course) =>
-            formation.cours.includes(course.uid)
-        );
-        return { formation, courses: formationCourses };
-      })
-      .filter((item) => item.courses.length > 0);
-});
-
-// Au montage, on récupère les formations et les cours de l'intervenant
-onMounted(async () => {
-  if (user.value && user.value.uid) {
-    await formationStore.fetchFormations();
-    await coursStore.fetchCoursesForIntervenant(user.value.uid);
-  }
-});
-
-// IntersectionObserver (lazy loading) si besoin
-const observerFormationsRef = ref(null);
-onMounted(() => {
-  const options = { root: null, rootMargin: '0px', threshold: 0.1 };
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting && entry.target === observerFormationsRef.value) {
-        // Possibilité de déclencher un chargement additionnel
-        // formationStore.fetchSomethingElse();
-        observer.unobserve(entry.target);
-      }
-    });
-  }, options);
-
-  if (observerFormationsRef.value) {
-    observer.observe(observerFormationsRef.value);
-  }
-});
-</script>
-
 <template>
   <div class="p-6 bg-lightbeige min-h-screen text-darkblue">
     <section
@@ -113,6 +55,60 @@ onMounted(() => {
     </section>
   </div>
 </template>
+
+<script setup lang="ts">
+import { computed, onMounted, ref } from 'vue';
+import { storeToRefs } from 'pinia';
+import { useAuthStore } from '@/stores/auth';
+import { useCoursStore } from '@/stores/cours.store';
+import { useFormationStore } from '@/stores/formation.store';
+
+const authStore = useAuthStore();
+const coursStore = useCoursStore();
+const formationStore = useFormationStore();
+
+const { user } = storeToRefs(authStore);
+const { courses, loadingCourses, errorCourses } = storeToRefs(coursStore);
+const { formations, loadingFormations, errorFormations } = storeToRefs(formationStore);
+
+// Calculer les formations dans lesquelles l'intervenant donne au moins un cours
+// Pour chaque formation, on vérifie si la liste des cours de la formation (formation.cours)
+// contient au moins un cours issu des cours de l'intervenant
+const formationsWithCourses = computed(() => {
+  return formations.value
+      .map((formation) => {
+        // Filtrer les cours de l'intervenant dont l'uid est dans la formation.cours
+        const formationCourses = courses.value.filter((course) =>
+            formation.cours.includes(course.uid)
+        );
+        return { formation, courses: formationCourses };
+      })
+      .filter((item) => item.courses.length > 0);
+});
+
+onMounted(async () => {
+  if (user.value && user.value.uid) {
+    await formationStore.fetchFormations();
+    await coursStore.fetchCoursesForIntervenant(user.value.uid);
+  }
+});
+
+const observerFormationsRef = ref(null);
+onMounted(() => {
+  const options = { root: null, rootMargin: '0px', threshold: 0.1 };
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting && entry.target === observerFormationsRef.value) {
+        observer.unobserve(entry.target);
+      }
+    });
+  }, options);
+
+  if (observerFormationsRef.value) {
+    observer.observe(observerFormationsRef.value);
+  }
+});
+</script>
 
 <style scoped>
 /* On peut aussi personnaliser l'aspect <details>/<summary> si besoin */

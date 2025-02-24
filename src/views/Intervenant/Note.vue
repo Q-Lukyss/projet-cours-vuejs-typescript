@@ -1,137 +1,3 @@
-<script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import { storeToRefs } from 'pinia';
-import { useAuthStore } from '@/stores/auth';
-import { useCoursStore } from '@/stores/cours.store';
-import { useFormationStore } from '@/stores/formation.store';
-import { useNoteStore } from '@/stores/note.store';
-
-const authStore = useAuthStore();
-const coursStore = useCoursStore();
-const formationStore = useFormationStore();
-const noteStore = useNoteStore();
-
-// Extraction des propriétés réactives
-const { user } = storeToRefs(authStore);
-const { courses, loadingCourses, errorCourses } = storeToRefs(coursStore);
-const { formations, loadingFormations, errorFormations } = storeToRefs(formationStore);
-const {
-  notesMap,
-  loadingStudentNotes,
-  errorStudentNotes,
-} = storeToRefs(noteStore);
-
-// Fonction utilitaire pour créer une clé unique élève-cours
-function studentKey(studentId: string, courseId: string): string {
-  return `${studentId}_${courseId}`;
-}
-
-// getStudentName => renvoie un simple ID par défaut (personnalisable si besoin)
-function getStudentName(studentId: string): string | null {
-  return studentId;
-}
-
-// Calculer les formations dans lesquelles l'intervenant donne au moins un cours
-const formationsWithCourses = computed(() => {
-  return formations.value
-      .map((formation) => {
-        const formationCourses = courses.value.filter((course) =>
-            formation.cours.includes(course.uid)
-        );
-        return { formation, courses: formationCourses };
-      })
-      .filter((item) => item.courses.length > 0);
-});
-
-// Gestion des affichages et des notes
-const selectedStudentKey = ref<string | null>(null);
-const newNoteData = ref({ libelle: '', note: 0 });
-const editingNoteId = ref<string | null>(null);
-const editedNoteData = ref({ libelle: '', note: 0 });
-
-// Lorsqu'un <details> d'élève s'ouvre, on charge ses notes
-async function onStudentToggle(courseId: string, studentId: string, event: Event) {
-  const detailsEl = event.target as HTMLDetailsElement;
-  if (detailsEl.open) {
-    selectedStudentKey.value = studentKey(studentId, courseId);
-    // Appel à la méthode du store (fetchNotesForStudentAndCourse)
-    await noteStore.fetchNotesForStudentAndCourse(studentId, courseId);
-  } else {
-    if (selectedStudentKey.value === studentKey(studentId, courseId)) {
-      selectedStudentKey.value = null;
-    }
-  }
-}
-
-// Démarrer l'édition d'une note
-function startEditing(note: any) {
-  editingNoteId.value = note.uid;
-  editedNoteData.value = { libelle: note.libelle, note: note.note };
-}
-
-// Sauvegarder une note modifiée
-async function saveNote(note: any, studentId: string, courseId: string) {
-  if (editedNoteData.value.libelle.trim() !== '') {
-    await noteStore.updateNote({
-      uid: note.uid,
-      id_user: studentId,
-      id_cours: courseId,
-      libelle: editedNoteData.value.libelle,
-      note: editedNoteData.value.note,
-    });
-    editingNoteId.value = null;
-    editedNoteData.value = { libelle: '', note: 0 };
-  }
-}
-
-// Supprimer une note
-async function deleteNoteItem(noteId: string, studentId: string, courseId: string) {
-  await noteStore.deleteNote(noteId, studentId, courseId);
-}
-
-// Ajouter une nouvelle note
-async function addNewNote(courseId: string, studentId: string) {
-  if (newNoteData.value.libelle.trim() !== '') {
-    await noteStore.addNoteForStudent({
-      uid: '', // Firestore génère l'ID
-      id_user: studentId,
-      id_cours: courseId,
-      libelle: newNoteData.value.libelle,
-      note: newNoteData.value.note,
-    });
-    newNoteData.value = { libelle: '', note: 0 };
-  }
-}
-
-// Chargement initial
-onMounted(async () => {
-  if (user.value && user.value.uid) {
-    await formationStore.fetchFormations();
-    await coursStore.fetchCoursesForIntervenant(user.value.uid);
-  }
-});
-
-// Lazy loading via Intersection Observer
-const observerNotesRef = ref(null);
-
-onMounted(() => {
-  const options = { root: null, rootMargin: '0px', threshold: 0.1 };
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting && entry.target === observerNotesRef.value) {
-        // Par exemple, déclencher un chargement additionnel si nécessaire
-        // noteStore.fetchAdditionalData();
-        observer.unobserve(entry.target);
-      }
-    });
-  }, options);
-
-  if (observerNotesRef.value) {
-    observer.observe(observerNotesRef.value);
-  }
-});
-</script>
-
 <template>
   <div class="p-6 bg-lightbeige min-h-screen text-darkblue">
     <section
@@ -302,14 +168,133 @@ onMounted(() => {
   </div>
 </template>
 
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue';
+import { storeToRefs } from 'pinia';
+import { useAuthStore } from '@/stores/auth';
+import { useCoursStore } from '@/stores/cours.store';
+import { useFormationStore } from '@/stores/formation.store';
+import { useNoteStore } from '@/stores/note.store';
+
+const authStore = useAuthStore();
+const coursStore = useCoursStore();
+const formationStore = useFormationStore();
+const noteStore = useNoteStore();
+
+const { user } = storeToRefs(authStore);
+const { courses, loadingCourses, errorCourses } = storeToRefs(coursStore);
+const { formations, loadingFormations, errorFormations } = storeToRefs(formationStore);
+const {
+  notesMap,
+  loadingStudentNotes,
+  errorStudentNotes,
+} = storeToRefs(noteStore);
+
+// Fonction utilitaire pour créer une clé unique élève-cours
+function studentKey(studentId: string, courseId: string): string {
+  return `${studentId}_${courseId}`;
+}
+
+function getStudentName(studentId: string): string | null {
+  return studentId;
+}
+
+// Calculer les formations dans lesquelles l'intervenant donne au moins un cours
+const formationsWithCourses = computed(() => {
+  return formations.value
+      .map((formation) => {
+        const formationCourses = courses.value.filter((course) =>
+            formation.cours.includes(course.uid)
+        );
+        return { formation, courses: formationCourses };
+      })
+      .filter((item) => item.courses.length > 0);
+});
+
+const selectedStudentKey = ref<string | null>(null);
+const newNoteData = ref({ libelle: '', note: 0 });
+const editingNoteId = ref<string | null>(null);
+const editedNoteData = ref({ libelle: '', note: 0 });
+
+async function onStudentToggle(courseId: string, studentId: string, event: Event) {
+  const detailsEl = event.target as HTMLDetailsElement;
+  if (detailsEl.open) {
+    selectedStudentKey.value = studentKey(studentId, courseId);
+    await noteStore.fetchNotesForStudentAndCourse(studentId, courseId);
+  } else {
+    if (selectedStudentKey.value === studentKey(studentId, courseId)) {
+      selectedStudentKey.value = null;
+    }
+  }
+}
+
+function startEditing(note: any) {
+  editingNoteId.value = note.uid;
+  editedNoteData.value = { libelle: note.libelle, note: note.note };
+}
+
+async function saveNote(note: any, studentId: string, courseId: string) {
+  if (editedNoteData.value.libelle.trim() !== '') {
+    await noteStore.updateNote({
+      uid: note.uid,
+      id_user: studentId,
+      id_cours: courseId,
+      libelle: editedNoteData.value.libelle,
+      note: editedNoteData.value.note,
+    });
+    editingNoteId.value = null;
+    editedNoteData.value = { libelle: '', note: 0 };
+  }
+}
+
+async function deleteNoteItem(noteId: string, studentId: string, courseId: string) {
+  await noteStore.deleteNote(noteId, studentId, courseId);
+}
+
+async function addNewNote(courseId: string, studentId: string) {
+  if (newNoteData.value.libelle.trim() !== '') {
+    await noteStore.addNoteForStudent({
+      uid: '',
+      id_user: studentId,
+      id_cours: courseId,
+      libelle: newNoteData.value.libelle,
+      note: newNoteData.value.note,
+    });
+    newNoteData.value = { libelle: '', note: 0 };
+  }
+}
+
+onMounted(async () => {
+  if (user.value && user.value.uid) {
+    await formationStore.fetchFormations();
+    await coursStore.fetchCoursesForIntervenant(user.value.uid);
+  }
+});
+
+const observerNotesRef = ref(null);
+
+onMounted(() => {
+  const options = { root: null, rootMargin: '0px', threshold: 0.1 };
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting && entry.target === observerNotesRef.value) {
+        observer.unobserve(entry.target);
+      }
+    });
+  }, options);
+
+  if (observerNotesRef.value) {
+    observer.observe(observerNotesRef.value);
+  }
+});
+</script>
+
 <style scoped>
-/* Tailwind gère la majorité du style.
-   On peut personnaliser un peu <details>/<summary> si on veut : */
 details {
   outline: none;
 }
 summary::-webkit-details-marker {
-  display: none; /* cache le symbole déroulant par défaut */
+  display: none;
 }
 summary:focus {
   outline: none;
