@@ -101,7 +101,7 @@
               class="border border-gray-300 rounded px-3 py-2 w-full"
           ></textarea>
           <input
-              v-model="editingNews.date"
+              v-model="editingNews.dateString"
               type="datetime-local"
               placeholder="Date de publication"
               class="border border-gray-300 rounded px-3 py-2 w-full"
@@ -149,7 +149,12 @@ const newNews = ref({
 });
 
 // News en cours d'édition
-const editingNews = ref<NewsEntity | null>(null);
+// const editingNews = ref<NewsEntity | null>(null);
+
+interface EditableNewsEntity extends NewsEntity {
+  dateString: string;
+}
+const editingNews = ref<EditableNewsEntity | null>(null);
 
 // Chargement des news au montage
 onMounted(async () => {
@@ -183,7 +188,7 @@ function startEditingNews(item: NewsEntity) {
   // DateTime-local attend un format "YYYY-MM-DDTHH:mm"
   editingNews.value = {
     ...item,
-    date: new Date(item.date).toISOString().slice(0, 16),
+    dateString: new Date(item.date).toISOString().slice(0, 16),
   };
 }
 
@@ -197,7 +202,7 @@ async function onUpdateNews() {
   if (editingNews.value) {
     const updatedNews: NewsEntity = {
       ...editingNews.value,
-      date: new Date(editingNews.value.date),
+      date: new Date(editingNews.value.dateString),
     };
     await newsStore.updateNews(updatedNews);
     editingNews.value = null;
