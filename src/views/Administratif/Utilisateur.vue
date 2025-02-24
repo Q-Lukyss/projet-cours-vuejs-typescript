@@ -8,7 +8,12 @@
       <input v-model="newUser.nom" placeholder="Nom" />
       <input v-model="newUser.prenom" placeholder="Prénom" />
       <input v-model="newUser.email" placeholder="Email" />
-      <input v-model="newUser.statut" placeholder="Statut" />
+      <select v-model="newUser.statut">
+        <option value="-1" selected>Statut</option>
+        <option value="0">Etudiant</option>
+        <option value="5">Intervenant</option>
+        <option value="10">Administratif</option>
+      </select>
       <button @click="onAddUser">Ajouter Utilisateur</button>
     </section>
 
@@ -84,6 +89,7 @@ const sortOrder = ref<'asc' | 'desc'>('asc');
 
 onMounted(async () => {
   await fetchUsers();
+  console.log(users);
 });
 
 // Computed pour trier les utilisateurs
