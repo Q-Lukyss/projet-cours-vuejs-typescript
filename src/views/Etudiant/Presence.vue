@@ -70,7 +70,6 @@ import { useAuthStore } from '@/stores/auth';
 const presenceStore = usePresenceStore();
 const authStore = useAuthStore();
 
-// Extraction des propriétés réactives du store Presence
 const {
   loadingPresence,
   errorPresence,
@@ -79,17 +78,14 @@ const {
   absencesToJustify,
 } = storeToRefs(presenceStore);
 
-// Extraction de la propriété user
 const { user } = storeToRefs(authStore);
 
-// Fonction de fetch
 const fetchPresencesForUser = () => {
   if (user.value?.uid) {
     presenceStore.fetchPresencesForUser(user.value.uid);
   }
 };
 
-// Au montage
 onMounted(() => {
   if (user.value?.uid) {
     fetchPresencesForUser();
@@ -99,7 +95,7 @@ onMounted(() => {
   }
 });
 
-// IntersectionObserver (lazy loading)
+// lazy loading
 const observerPresenceRef = ref(null);
 
 onMounted(() => {
@@ -107,8 +103,6 @@ onMounted(() => {
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting && entry.target === observerPresenceRef.value) {
-        // On pourrait déclencher un chargement additionnel ici si besoin
-        // presenceStore.fetchSomethingElse();
         observer.unobserve(entry.target);
       }
     });
@@ -119,7 +113,3 @@ onMounted(() => {
   }
 });
 </script>
-
-<style scoped>
-/* Ajustements éventuels */
-</style>

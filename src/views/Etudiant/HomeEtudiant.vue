@@ -125,7 +125,6 @@ import { useSeanceStore } from '@/stores/seance.store';
 import { useCoursStore } from '@/stores/cours.store';
 import { useNewsStore } from '@/stores/news.store';
 
-// Stores
 const authStore = useAuthStore();
 const noteStore = useNoteStore();
 const presenceStore = usePresenceStore();
@@ -133,7 +132,6 @@ const seanceStore = useSeanceStore();
 const coursStore = useCoursStore();
 const newsStore = useNewsStore();
 
-// Références
 const { user } = storeToRefs(authStore);
 const { averageGrade, loadingGlobalNotes, errorGlobalNotes } = storeToRefs(noteStore);
 const { nbPresences, nbAbsences, loadingPresence, errorPresence } = storeToRefs(presenceStore);
@@ -150,7 +148,6 @@ const courseMap = computed(() => {
   return map;
 });
 
-// Trouver le prochain jour de cours
 const nextCourseDayKey = computed(() => {
   if (upcomingSeances.value.length === 0) return null;
   const sorted = [...upcomingSeances.value].sort(
@@ -159,7 +156,6 @@ const nextCourseDayKey = computed(() => {
   return new Date(sorted[0].date).toISOString().split('T')[0];
 });
 
-// Séances du prochain jour
 const nextCourseDaySeances = computed(() => {
   if (!nextCourseDayKey.value) return [];
   return upcomingSeances.value.filter((seance) => {
@@ -168,12 +164,10 @@ const nextCourseDaySeances = computed(() => {
   });
 });
 
-// Formater heure
 function formatTime(date: Date): string {
   return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-// Références pour lazy-loading (IntersectionObserver)
 const observerMoyenneRef = ref(null);
 const observerPresenceRef = ref(null);
 
@@ -186,7 +180,6 @@ onMounted(async () => {
     await noteStore.fetchNotesForUser(user.value.uid);
     await presenceStore.fetchPresencesForUser(user.value.uid);
 
-    // Charger la formation puis toutes les séances
     // await coursStore.fetchFormationForUser(user.value.uid);
     await coursStore.fetchFormationAndCoursesForUser(user.value.uid);
     // await coursStore.fetchCoursesForFormation();
@@ -199,27 +192,18 @@ onMounted(async () => {
     }
   }
 
-  // Exemple simple de lazy loading : on pourrait “différer” le chargement
-  // en observant si la section "Présences" est visible, etc.
   const options = {
     root: null,
     rootMargin: '0px',
-    threshold: 0.1, // si 10% de la section est visible
+    threshold: 0.1,
   };
 
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
-      // Quand la section "moyenne" devient visible, par ex.
       if (entry.isIntersecting && entry.target === observerMoyenneRef.value) {
-        // On peut lancer un chargement supplémentaire si nécessaire, ex:
-        // noteStore.fetchSomethingElse();
-        // Et on arrête l’observer pour éviter de le refaire 100 fois
         observer.unobserve(entry.target);
       }
-
-      // Même idée pour la section "Présences/Absences"
       if (entry.isIntersecting && entry.target === observerPresenceRef.value) {
-        // presenceStore.fetchSomethingElse();
         observer.unobserve(entry.target);
       }
     });
@@ -229,7 +213,3 @@ onMounted(async () => {
   if (observerPresenceRef.value) observer.observe(observerPresenceRef.value);
 });
 </script>
-
-<style scoped>
-/* Tailwind gère déjà la plupart du style, mais tu peux ajouter des ajustements ici si besoin. */
-</style>

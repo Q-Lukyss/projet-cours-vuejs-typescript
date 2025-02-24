@@ -106,12 +106,11 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, watch, ref, onMounted } from 'vue';
-import { storeToRefs } from 'pinia';
-import { useCoursStore } from '@/stores/cours.store';
-import { useAuthStore } from '@/stores/auth';
+import {onMounted, reactive, ref, watch} from 'vue';
+import {storeToRefs} from 'pinia';
+import {useCoursStore} from '@/stores/cours.store';
+import {useAuthStore} from '@/stores/auth';
 
-// Stores
 const coursStore = useCoursStore();
 const authStore = useAuthStore();
 
@@ -124,12 +123,10 @@ const {
 } = storeToRefs(coursStore);
 const { user } = storeToRefs(authStore);
 
-// Objets réactifs pour l’affichage et le chargement des supports par cours
 const expandedSupports = reactive<{ [courseId: string]: boolean }>({});
 const loadingSupports = reactive<{ [courseId: string]: boolean }>({});
 const supportsByCourse = reactive<{ [courseId: string]: any[] }>({});
 
-// Fonction de toggle pour les supports
 async function toggleSupports(courseId: string) {
   if (expandedSupports[courseId]) {
     expandedSupports[courseId] = false;
@@ -137,14 +134,13 @@ async function toggleSupports(courseId: string) {
     expandedSupports[courseId] = true;
     if (!supportsByCourse[courseId]) {
       loadingSupports[courseId] = true;
-      const supports = await coursStore.fetchSupports(courseId);
-      supportsByCourse[courseId] = supports;
+      supportsByCourse[courseId] = await coursStore.fetchSupports(courseId);
       loadingSupports[courseId] = false;
     }
   }
 }
 
-// Référence pour la section (lazy loading avec IntersectionObserver)
+// lazy loading
 const observerSupportsRef = ref(null);
 
 onMounted(() => {
@@ -153,13 +149,11 @@ onMounted(() => {
     coursStore.fetchFormationAndCoursesForUser(user.value.uid);
   }
 
-  // Intersection Observer pour lazy loading
+  // lazy loading
   const options = { root: null, rootMargin: '0px', threshold: 0.1 };
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting && entry.target === observerSupportsRef.value) {
-        // Par exemple, déclencher un chargement additionnel
-        // coursStore.fetchMoreData(...);
         observer.unobserve(entry.target);
       }
     });
@@ -170,7 +164,6 @@ onMounted(() => {
   }
 });
 
-// Dès que l'utilisateur change, on recharge la formation / cours
 watch(
     user,
     (newUser) => {
@@ -181,15 +174,3 @@ watch(
     { immediate: true }
 );
 </script>
-
-<style scoped>
-/* Transition fade in / out */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s;
-}
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-</style>

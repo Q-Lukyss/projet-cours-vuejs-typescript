@@ -42,38 +42,28 @@ import { storeToRefs } from 'pinia';
 import { useDocumentStore } from '@/stores/document.store';
 import { useAuthStore } from '@/stores/auth';
 
-// Stores
 const documentStore = useDocumentStore();
 const authStore = useAuthStore();
 const { user } = storeToRefs(authStore);
 
-// Données du store “document”
 const { documents, loading, error } = storeToRefs(documentStore);
 
-// Référence pour le lazy loading (IntersectionObserver)
 const observerDocumentsRef = ref(null);
 
 onMounted(() => {
-  // Charger les documents pour l’utilisateur
   if (user.value && user.value.uid) {
     documentStore.fetchDocumentsForUser(user.value.uid);
   }
 
-  // Exemple de lazy loading : on observe si la section “Mes Documents” apparaît à l’écran
   const options = {
     root: null,
     rootMargin: '0px',
-    threshold: 0.1, // déclenché quand 10% de l’élément est visible
+    threshold: 0.1,
   };
 
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting && entry.target === observerDocumentsRef.value) {
-        // Ici tu pourrais charger des infos supplémentaires,
-        // comme d’autres détails de document, etc.
-        // documentStore.fetchAdditionalDocumentData();
-
-        // On arrête l’observation pour éviter de re-déclencher
         observer.unobserve(entry.target);
       }
     });
@@ -84,7 +74,3 @@ onMounted(() => {
   }
 });
 </script>
-
-<style scoped>
-/* Styles additionnels si besoin, sinon tout se gère dans Tailwind */
-</style>

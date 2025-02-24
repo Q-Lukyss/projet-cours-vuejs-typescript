@@ -119,12 +119,10 @@ const {
 } = storeToRefs(coursStore);
 const { user } = storeToRefs(authStore);
 
-// Objets réactifs pour l’affichage et le chargement des notes par cours
 const expandedNotes = reactive<{ [courseId: string]: boolean }>({});
 const loadingNotes = reactive<{ [courseId: string]: boolean }>({});
 const notesByCourse = reactive<{ [courseId: string]: any[] }>({});
 
-// Fonction de toggle pour les notes
 async function toggleNotes(courseId: string) {
   if (expandedNotes[courseId]) {
     // Si déjà ouvert, on referme
@@ -148,18 +146,15 @@ async function toggleNotes(courseId: string) {
 const observerCoursRef = ref(null);
 
 onMounted(() => {
-  // Charger la formation et les cours si l'utilisateur est déjà dispo
   if (user.value && user.value.uid) {
     coursStore.fetchFormationAndCoursesForUser(user.value.uid);
   }
 
-  // IntersectionObserver pour lazy loading
+  // lazy loading
   const options = { root: null, rootMargin: '0px', threshold: 0.1 };
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting && entry.target === observerCoursRef.value) {
-        // Par exemple, on pourrait déclencher un chargement supplémentaire
-        // coursStore.fetchSomethingElse();
         observer.unobserve(entry.target);
       }
     });
@@ -170,7 +165,6 @@ onMounted(() => {
   }
 });
 
-// Dès que l’utilisateur change, on recharge la formation / cours
 watch(
     user,
     (newUser) => {
@@ -181,15 +175,3 @@ watch(
     { immediate: true }
 );
 </script>
-
-<style scoped>
-/* Transition fade in / out */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s;
-}
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-</style>

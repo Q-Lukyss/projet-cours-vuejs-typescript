@@ -74,7 +74,6 @@ import { UserService } from '@/services/user.service';
 
 const userService = new UserService();
 
-// Récupération des stores existants
 const seanceStore = useSeanceStore();
 const coursStore = useCoursStore();
 const authStore = useAuthStore();
@@ -83,7 +82,6 @@ const { upcomingSeances, loadingSeances, errorSeances } = storeToRefs(seanceStor
 const { courses } = storeToRefs(coursStore);
 const { user } = storeToRefs(authStore);
 
-// Map pour retrouver rapidement les infos d'un cours
 const courseMap = computed(() => {
   const map: Record<string, any> = {};
   courses.value.forEach(cours => {
@@ -92,7 +90,6 @@ const courseMap = computed(() => {
   return map;
 });
 
-// Map réactive pour stocker le nom des enseignants
 const teacherMap = reactive<{ [key: string]: string }>({});
 
 // Fonction pour charger le nom d'un enseignant (via userService)
@@ -112,7 +109,6 @@ async function loadTeacherName(teacherId: string) {
   }
 }
 
-// Surveiller le store des cours, charger noms d’enseignants
 watch(
     courses,
     (newCourses) => {
@@ -139,7 +135,6 @@ const groupedSeances = computed(() => {
   return groups;
 });
 
-// Fonction pour formater l'heure
 function formatTime(date: Date): string {
   return new Date(date).toLocaleTimeString([], {
     hour: '2-digit',
@@ -147,7 +142,6 @@ function formatTime(date: Date): string {
   });
 }
 
-// Réf pour observer la section (lazy loading)
 const observerSeancesRef = ref(null);
 
 onMounted(async () => {
@@ -156,7 +150,6 @@ onMounted(async () => {
     await seanceStore.fetchUpcomingSeancesForCourses(courseIds);
   }
 
-  // Exemple d’Intersection Observer pour lazy loading d’éléments supplémentaires
   const options = {
     root: null,
     rootMargin: '0px',
@@ -166,8 +159,6 @@ onMounted(async () => {
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting && entry.target === observerSeancesRef.value) {
-        // Si la section est visible, on peut charger plus de détails si besoin
-        // Par exemple: seanceStore.fetchMoreDetails(...);
         observer.unobserve(entry.target);
       }
     });
@@ -178,7 +169,3 @@ onMounted(async () => {
   }
 });
 </script>
-
-<style scoped>
-/* Ajustements de marges, etc. */
-</style>
