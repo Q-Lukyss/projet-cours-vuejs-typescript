@@ -36,7 +36,7 @@
           <ul class="list-disc list-inside space-y-2">
             <li
                 v-for="absence in absencesToJustify"
-                :key="absence.id_presence"
+                :key="absence.uid"
                 class="ml-4"
             >
               <strong class="mr-1">Séance :</strong>

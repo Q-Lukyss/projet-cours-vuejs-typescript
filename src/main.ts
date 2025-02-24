@@ -26,7 +26,7 @@ const authPromise = new Promise<void>((resolve) => {
                 const userData = await userService.getUser(user.uid);
                 if (userData) {
                     authStore.setUser({
-                        uid: userData.uuid,
+                        uid: userData.uid,
                         email: userData.email,
                         statut: parseInt(userData.statut)
                     });
